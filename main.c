@@ -3,10 +3,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// peon 1, alfil 2, caballo 3, torre 5, Dama 9, rey 100, nada 0, 0 al final si es negro;
+//https://github.com/austin0209/just-chess
+
+// peon 1, alfil 2, caballo 3, torre 5, Dama 9, rey 100, nada 0, negativo si es negro;
+//que piezas estan en que lugar
 int board_pieces[8][8] = {
-    {50,30,20,90,1000,20,30,50},
-    {10,10,10,10,10,10,10,10},
+    {-5,-3,-2,-9,-100,-2,-3,-5},
+    {-1,-1,-1,-1,-1,-1,-1,-1},
     {0,0,0,0,0,0,0,0},
     {0,0,0,0,0,0,0,0},
     {0,0,0,0,0,0,0,0},
@@ -15,6 +18,7 @@ int board_pieces[8][8] = {
     {5,3,2,9,100,2,3,5},
 };
 
+// identificar los lugares en el tablero
 int board_values[8][8] = {
     {11, 12, 13, 14, 15, 16, 17, 18},
     {21, 22, 23, 24, 25, 26, 27, 28},
