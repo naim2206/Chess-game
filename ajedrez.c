@@ -1,25 +1,54 @@
 #include "ajedrez.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "raylib.h"
 
 
-void updateCircleState(struct circle* c)
+void drawPiece(int i, int j, int board[8][8])
 {
-    if (c->y > SCREAN_HEIGHT)
+    Image* image = malloc(sizeof(Image));
+    image = NULL;
+    printf("%d\n", board[i][j]);
+    switch (board[i][j])
     {
-        c->speed = c->speed * -1;
+    case 1: *image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 2: *image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 3:*image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 5:*image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 9:*image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 10:*image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 20:*image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 30:*image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 50:*image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 90:*image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 100:*image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+    case 1000:*image = LoadImage("pieces/Chess_plt60.png"); break; //peon blanco
+
     }
-    else
+    if (image != NULL)
     {
-        c->speed += ACCELERATION;
+        ImageDrawRectangle(image, i, j, REC_SIZE, REC_SIZE, RAYWHITE);
     }
-    c->y += c->speed;
 }
 
-void initCircle(struct circle* c, int x, int y)
+
+void drawBoard(int board[8][8])
 {
-    c->radius = 30;
-    c->x = x;
-    c->y = y;
-    c->speed = 0;
+    ClearBackground(RAYWHITE);
+    for (int i = 1; i < SCREAN_WIDTH / REC_SIZE; i += 2)
+    {
+        for (int j = 0; j < SCREAN_HEIGHT / REC_SIZE; j += 2)
+        {
+            DrawRectangle(i * REC_SIZE, j * REC_SIZE, REC_SIZE, REC_SIZE, BLACK);
+            //drawPiece(i, j, board);
+        }
+    }
+    for (int i = 0; i < SCREAN_WIDTH / REC_SIZE; i += 2)
+    {
+        for (int j = 1; j < SCREAN_HEIGHT / REC_SIZE; j += 2)
+        {
+            DrawRectangle(i * REC_SIZE, j * REC_SIZE, REC_SIZE, REC_SIZE, BLACK);
+            //drawPiece(i, j, board);
+        }
+    }
 }

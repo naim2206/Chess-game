@@ -3,39 +3,46 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// peon 1, alfil 2, caballo 3, torre 5, Dama 9, rey 100, nada 0, 0 al final si es negro;
+int board_pieces[8][8] = {
+    {50,30,20,90,1000,20,30,50},
+    {10,10,10,10,10,10,10,10},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0},
+    {1,1,1,1,1,1,1,1},
+    {5,3,2,9,100,2,3,5},
+};
+
+int board_values[8][8] = {
+    {11, 12, 13, 14, 15, 16, 17, 18},
+    {21, 22, 23, 24, 25, 26, 27, 28},
+    {31, 32, 33, 34, 35, 36, 37, 38},
+    {41, 42, 43, 44, 45, 46, 47, 48},
+    {51, 52, 53, 54, 55, 56, 57, 58},
+    {61, 62, 63, 64, 65, 66, 67, 68},
+    {71, 72, 73, 74, 75, 76, 77, 78},
+    {81, 82, 83, 84, 85, 86, 87, 88}
+};
+
 
 int main()
 {
-    InitWindow(500, SCREAN_HEIGHT, "el repaso");
+    InitWindow(SCREAN_WIDTH, SCREAN_HEIGHT, "Chess");
+
     SetTargetFPS(60);
 
-    struct circle c[NUM_OF_CIRCLES];
-
-    for (int i = 0; i < NUM_OF_CIRCLES; ++i)
-        initCircle(c + i, 50 * i, 5 * i);
 
     while (!WindowShouldClose())
     {
-
-        for (int i = 0; i < NUM_OF_CIRCLES; ++i)
-            updateCircleState(c + i);
-
-
         BeginDrawing();
-        {
-            ClearBackground(WHITE);
-
-            for (int i = 0; i < NUM_OF_CIRCLES; ++i)
-                DrawCircle(c[i].x, c[i].y, c[i].radius, RED);
-
-
-            DrawFPS(10, 10);
-
-        }
-
+        drawBoard(board_pieces);
         EndDrawing();
-
-
-
     }
+    CloseWindow();
+
+    return 0;
+
+
 }

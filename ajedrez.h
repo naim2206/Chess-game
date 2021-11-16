@@ -1,21 +1,15 @@
 #ifndef AJEFREZ_H
 #define AJEDREZ_H
 
-#define SCREAN_HEIGHT 500
-#define ACCELERATION 1
-#define NUM_OF_CIRCLES 5
+#define SCREAN_HEIGHT 400
+#define SCREAN_WIDTH 400
+#define REC_SIZE 50
 
-struct circle
-{
-    float radius;
-    int color;
-    int x;
-    int y;
-    int speed;
-};
 
-void initCircle(struct circle* c, int x, int y);
 
-void updateCircleState(struct circle* c);
+void drawBoard(int board[8][8]);
+
+
+
 
 #endif
