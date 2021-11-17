@@ -1,5 +1,4 @@
 #include "ajedrez.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include "raylib.h"
 
@@ -56,4 +55,54 @@ void drawBoard(int board[8][8])
         {
             drawPiece(i, j, board);
         }
+}
+
+
+int whatMove(Player* p, int board[8][8])
+{
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        if (board[GetMouseY() / REC_SIZE][GetMouseX() / REC_SIZE] != 0)
+        {
+            p->whatToMoveX = GetMouseX() / REC_SIZE;
+            p->whatToMoveY = GetMouseY() / REC_SIZE;
+            return 1;
+        }
+    }
+    return 0;
+
+}
+
+int whereMove(Player* p)
+{
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        p->whereToMoveX = GetMouseX() / REC_SIZE;
+        p->whereToMoveY = GetMouseY() / REC_SIZE;
+        return 2;
+    }
+    return 1;
+
+}
+
+int makeMove(int board[8][8], Player* p)
+{
+
+    int temp;
+    temp = board[p->whatToMoveY][p->whatToMoveX];
+    board[p->whatToMoveY][p->whatToMoveX] = board[p->whereToMoveY][p->whereToMoveX];
+    board[p->whereToMoveY][p->whereToMoveX] = temp;
+
+    return 0;
+}
+
+Player* newPlayer()
+{
+    Player* p = malloc(sizeof(Player));
+    p->whereToMoveX = 9;
+    p->whereToMoveY = 9;
+    p->whatToMoveX = 9;
+    p->whatToMoveY = 9;
+    p->turn = 9;
+    return p;
 }

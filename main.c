@@ -1,7 +1,6 @@
 #include "raylib.h"
 #include "ajedrez.h"
 #include <stdlib.h>
-#include <stdio.h>
 
 //https://github.com/austin0209/just-chess
 
@@ -37,11 +36,25 @@ int main()
 
     SetTargetFPS(60);
 
+    Player* p1 = newPlayer();
+    int band = 0;
 
     while (!WindowShouldClose())
     {
+        char pr[10];
+        itoa(p1->whereToMoveX, pr, 10);
         BeginDrawing();
         drawBoard(board_pieces);
+        if (band == 0)
+            band = whatMove(p1, board_pieces);
+        else if (band == 1)
+            band = whereMove(p1);
+        else if (band == 2)
+            band = makeMove(board_pieces, p1);
+        if ((IsMouseButtonDown(MOUSE_RIGHT_BUTTON)))
+        {
+            DrawText(pr, 10, 10, 20, BLUE);
+        }
         EndDrawing();
     }
     CloseWindow();
