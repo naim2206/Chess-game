@@ -87,12 +87,18 @@ int whereMove(Player* p)
 
 int makeMove(int board[8][8], Player* p)
 {
-
-    int temp;
-    temp = board[p->whatToMoveY][p->whatToMoveX];
-    board[p->whatToMoveY][p->whatToMoveX] = board[p->whereToMoveY][p->whereToMoveX];
-    board[p->whereToMoveY][p->whereToMoveX] = temp;
-
+    if (board[p->whereToMoveY][p->whereToMoveX] == 0)
+    {
+        int temp;
+        temp = board[p->whatToMoveY][p->whatToMoveX];
+        board[p->whatToMoveY][p->whatToMoveX] = board[p->whereToMoveY][p->whereToMoveX];
+        board[p->whereToMoveY][p->whereToMoveX] = temp;
+    }
+    else
+    {
+        board[p->whereToMoveY][p->whereToMoveX] = board[p->whatToMoveY][p->whatToMoveX];
+        board[p->whatToMoveY][p->whatToMoveX] = 0;
+    }
     return 0;
 }
 
@@ -103,6 +109,5 @@ Player* newPlayer()
     p->whereToMoveY = 9;
     p->whatToMoveX = 9;
     p->whatToMoveY = 9;
-    p->turn = 9;
     return p;
 }

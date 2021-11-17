@@ -11,9 +11,18 @@ typedef struct player
     int whereToMoveY;
     int whatToMoveX;
     int whatToMoveY;
-    int turn;
 } Player;
 
+typedef struct game
+{
+    // -1 negro, 1 blanco
+    int turn;
+} Game;
+
+typedef struct piece
+{
+    int id;
+} Piece;
 
 void drawBoard(int board[8][8]);
 
