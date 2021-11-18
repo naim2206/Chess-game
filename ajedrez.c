@@ -155,7 +155,7 @@ int revisarMovTorre(int board[8][8], Player* p, int what)
     return 0;
 }
 
-int possibleMove(int board[8][8], Player* p, int what)
+int possibleMovePerPiece(int board[8][8], Player* p, int what)
 {
     switch (what)
     {
@@ -174,7 +174,8 @@ int changePeaces(int board[8][8], Player* p)
     int where = board[p->whereToMoveY][p->whereToMoveX];
     int what = board[p->whatToMoveY][p->whatToMoveX];
 
-    if (possibleMove(board, p, what) == 1)
+    // tambien falta nothingInMyWay();
+    if (possibleMovePerPiece(board, p, what) == 1)
     {
         // los peones son super hdp 100% confirmado
         if (where == 0)
@@ -192,7 +193,7 @@ int changePeaces(int board[8][8], Player* p)
             // matar enemigo
             board[p->whereToMoveY][p->whereToMoveX] = what;
             board[p->whatToMoveY][p->whatToMoveX] = 0;
-            return 0;
+            return 1;
         }
         // vas contra tu equipo! cambia where
         return 1;
