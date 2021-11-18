@@ -85,7 +85,7 @@ int whereMove(Player* p)
 
 }
 
-int makeMove(int board[8][8], Player* p)
+int changePeaces(int board[8][8], Player* p)
 {
     if (board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
@@ -110,4 +110,22 @@ Player* newPlayer()
     p->whatToMoveX = 9;
     p->whatToMoveY = 9;
     return p;
+}
+
+Game* newGame()
+{
+    Game* g = malloc(sizeof(Game));
+    g->turn = 1;
+    return g;
+}
+
+
+void makeMove(int* band, Player* p, int board_pieces[8][8])
+{
+    if (*band == 0)
+        *band = whatMove(p, board_pieces);
+    else if (*band == 1)
+        *band = whereMove(p);
+    else if (*band == 2)
+        *band = changePeaces(board_pieces, p);
 }

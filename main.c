@@ -36,26 +36,29 @@ int main()
 
     SetTargetFPS(60);
 
-    Player* p1 = newPlayer();
+    Player* p = newPlayer();
+    Game* g = newGame();
     int band = 0;
 
     while (!WindowShouldClose())
     {
-        char pr[10];
-        itoa(p1->whereToMoveX, pr, 10);
+
         BeginDrawing();
         drawBoard(board_pieces);
-        if (band == 0)
-            band = whatMove(p1, board_pieces);
-        else if (band == 1)
-            band = whereMove(p1);
-        else if (band == 2)
-            band = makeMove(board_pieces, p1);
+        // pa debuggear, eliminar despues
+        char pr[10];
+        itoa(p->whereToMoveX, pr, 10);
         if ((IsMouseButtonDown(MOUSE_RIGHT_BUTTON)))
         {
             DrawText(pr, 10, 10, 20, BLUE);
         }
+        // hasta aqui
+
+        //falta revisar lo de los turnos
         EndDrawing();
+        makeMove(&band, p, board_pieces);
+
+
     }
     CloseWindow();
 

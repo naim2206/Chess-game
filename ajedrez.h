@@ -24,15 +24,13 @@ typedef struct piece
     int id;
 } Piece;
 
+
 void drawBoard(int board[8][8]);
-
-int makeMove(int board[8][8], Player* p);
-
-int whatMove(Player* p, int board[8][8]);
-
-int whereMove(Player* p);
 
 Player* newPlayer();
 
+void makeMove(int* band, Player* p, int board_pieces[8][8]);
+
+Game* newGame();
 
 #endif
