@@ -29,6 +29,9 @@ void drawPiece(int i, int j, int board[8][8])
     }
 }
 
+
+
+
 //mostrar tablero y piezas
 void drawBoard(int board[8][8])
 {
@@ -85,22 +88,7 @@ int whereMove(Player* p)
 
 }
 
-int changePeaces(int board[8][8], Player* p)
-{
-    if (board[p->whereToMoveY][p->whereToMoveX] == 0)
-    {
-        int temp;
-        temp = board[p->whatToMoveY][p->whatToMoveX];
-        board[p->whatToMoveY][p->whatToMoveX] = board[p->whereToMoveY][p->whereToMoveX];
-        board[p->whereToMoveY][p->whereToMoveX] = temp;
-    }
-    else
-    {
-        board[p->whereToMoveY][p->whereToMoveX] = board[p->whatToMoveY][p->whatToMoveX];
-        board[p->whatToMoveY][p->whatToMoveX] = 0;
-    }
-    return 0;
-}
+
 
 Player* newPlayer()
 {
@@ -119,6 +107,98 @@ Game* newGame()
     return g;
 }
 
+
+int revisarMovPeonBlanco(int board[8][8], Player* p, int what)
+{
+    if (p->whatToMoveX == p->whereToMoveX)
+    {
+        if (p->whatToMoveY - p->whereToMoveY < 2 && p->whatToMoveY - p->whereToMoveY > 0)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int revisarMovPeonNegro(int board[8][8], Player* p, int what)
+{
+    if (p->whatToMoveX == p->whereToMoveX)
+    {
+        if (p->whereToMoveY - p->whatToMoveY < 2 && p->whatToMoveY - p->whereToMoveY < 0)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int revisarMovAlfil(int board[8][8], Player* p, int what)
+{
+    int diffMovY = p->whereToMoveY - p->whatToMoveY;
+    int diffMovX = p->whereToMoveX - p->whatToMoveX;
+    diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
+    diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
+
+    if (diffMovY == diffMovX)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int revisarMovTorre(int board[8][8], Player* p, int what)
+{
+    if (p->whatToMoveX == p->whereToMoveX || p->whatToMoveY == p->whereToMoveY)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int possibleMove(int board[8][8], Player* p, int what)
+{
+    switch (what)
+    {
+    case 1: return revisarMovPeonBlanco(board, p, what);
+    case -1: return revisarMovPeonNegro(board, p, what);
+    case 2: return revisarMovAlfil(board, p, what);
+    case -2:return revisarMovAlfil(board, p, what);
+    case 5: return revisarMovTorre(board, p, what);
+    case -5: return revisarMovTorre(board, p, what);
+    default: return 1; // por ahora
+    }
+}
+
+int changePeaces(int board[8][8], Player* p)
+{
+    int where = board[p->whereToMoveY][p->whereToMoveX];
+    int what = board[p->whatToMoveY][p->whatToMoveX];
+
+    if (possibleMove(board, p, what) == 1)
+    {
+        // los peones son super hdp 100% confirmado
+        if (where == 0)
+        {
+            //mover pieza
+            int temp;
+            temp = what;
+            board[p->whatToMoveY][p->whatToMoveX] = where;
+            board[p->whereToMoveY][p->whereToMoveX] = temp;
+            return 0;
+        }
+        // para que no te puedas suicidar
+        if ((where > 0 && what < 0) || (where < 0 && what > 0))
+        {
+            // matar enemigo
+            board[p->whereToMoveY][p->whereToMoveX] = what;
+            board[p->whatToMoveY][p->whatToMoveX] = 0;
+            return 0;
+        }
+        // vas contra tu equipo! cambia where
+        return 1;
+    }
+    return 0;
+}
 
 void makeMove(int* band, Player* p, int board_pieces[8][8])
 {
