@@ -5,6 +5,9 @@
 !.vscode/extensions.json
 *.code-workspace
 
+cmake-build-debug/*
+.idea/
+
 # Local History for Visual Studio Code
 .history/
 main.exe
