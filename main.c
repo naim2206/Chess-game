@@ -41,6 +41,7 @@ int main()
 
     Player* p = newPlayer();
     //Game* g = newGame();
+    myTexture* t = loadTextures();
     int band = 0;
 
     while (!WindowShouldClose())
@@ -48,6 +49,7 @@ int main()
 
         BeginDrawing();
         drawBoard(board_pieces);
+        drawPieces(board_pieces, t);
         // pa debuggear, eliminar despues
         char pr[10];
         itoa(band, pr, 10);

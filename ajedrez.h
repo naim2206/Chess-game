@@ -5,6 +5,8 @@
 #define SCREAN_WIDTH 400
 #define REC_SIZE 50
 
+#include "raylib.h"
+
 typedef struct player
 {
     int whereToMoveX;
@@ -25,6 +27,22 @@ typedef struct piece
 } Piece;
 
 
+typedef struct mytextures
+{
+    Texture2D texturepn;
+    Texture2D texturepb;
+    Texture2D texturean;
+    Texture2D textureab;
+    Texture2D texturecn;
+    Texture2D texturecb;
+    Texture2D texturetn;
+    Texture2D texturetb;
+    Texture2D texturedn;
+    Texture2D texturedb;
+    Texture2D texturern;
+    Texture2D texturerb;
+} myTexture;
+
 void drawBoard(int board[8][8]);
 
 Player* newPlayer();
@@ -32,5 +50,10 @@ Player* newPlayer();
 void makeMove(int* band, Player* p, int board_pieces[8][8]);
 
 Game* newGame();
+
+myTexture* loadTextures();
+
+void drawPieces(int board[8][8], myTexture* t);
+
 
 #endif
