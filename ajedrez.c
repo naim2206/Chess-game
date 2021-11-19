@@ -2,31 +2,51 @@
 #include <stdlib.h>
 #include "raylib.h"
 
-// revisa que pieza se debe colocar y la dibuja
-void drawPiece(int i, int j, int board[8][8])
+
+myTexture* loadTextures()
 {
-    Texture2D texture;
-    int entra = 1;
-    switch (board[j][i])
-    {
-    case 1: texture = LoadTexture("pieces/Chess_plt60.png"); break; //peon blanco
-    case 2: texture = LoadTexture("pieces/Chess_blt60.png"); break; //alfil blanco
-    case 3: texture = LoadTexture("pieces/Chess_nlt60.png"); break; //caballo blanco
-    case 5: texture = LoadTexture("pieces/Chess_rlt60.png"); break; //torre blanco
-    case 9: texture = LoadTexture("pieces/Chess_qlt60.png"); break; //dama blanco
-    case -1: texture = LoadTexture("pieces/Chess_pdt60.png"); break; //peon negro
-    case -2: texture = LoadTexture("pieces/Chess_bdt60.png"); break; //alfil negro
-    case -3: texture = LoadTexture("pieces/Chess_ndt60.png"); break; //caballo negro
-    case -5: texture = LoadTexture("pieces/Chess_rdt60.png"); break; //torre negro
-    case -9: texture = LoadTexture("pieces/Chess_qdt60.png"); break; //dama negro
-    case 100: texture = LoadTexture("pieces/Chess_klt60.png"); break; //rey blanco
-    case -100: texture = LoadTexture("pieces/Chess_kdt60.png"); break; //rey negro
-    default: entra = 0; // no debe dibujar nada
-    }
-    if (entra == 1)
-    {
-        DrawTexture(texture, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);
-    }
+    myTexture* t = malloc(sizeof(myTexture));
+    t->texturepb = LoadTexture("pieces/Chess_plt60.png");  //peon blanco
+    t->textureab = LoadTexture("pieces/Chess_blt60.png");  //alfil blanco
+    t->texturecb = LoadTexture("pieces/Chess_nlt60.png");  //caballo blanco
+    t->texturetb = LoadTexture("pieces/Chess_rlt60.png");  //torre blanco
+    t->texturedb = LoadTexture("pieces/Chess_qlt60.png");  //dama blanco
+    t->texturepn = LoadTexture("pieces/Chess_pdt60.png");  //peon negro
+    t->texturean = LoadTexture("pieces/Chess_bdt60.png");  //alfil negro
+    t->texturecn = LoadTexture("pieces/Chess_ndt60.png");  //caballo negro
+    t->texturetn = LoadTexture("pieces/Chess_rdt60.png");  //torre negro
+    t->texturedn = LoadTexture("pieces/Chess_qdt60.png");  //dama negro
+    t->texturerb = LoadTexture("pieces/Chess_klt60.png");  //rey blanco
+    t->texturern = LoadTexture("pieces/Chess_kdt60.png");  //rey negro
+
+    return t;
+}
+
+
+// revisa que pieza se debe colocar y la dibuja
+void drawPieces(int board[8][8], myTexture* t)
+{
+
+    for (int j = 0; j < SCREAN_WIDTH / REC_SIZE; j++)
+        for (int i = 0; i < SCREAN_HEIGHT / REC_SIZE; i++)
+        {
+            switch (board[j][i])
+            {
+            case 1: DrawTexture(t->texturepb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //peon blanco
+            case 2: DrawTexture(t->textureab, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //alfil blanco
+            case 3: DrawTexture(t->texturecb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //caballo blanco
+            case 5: DrawTexture(t->texturetb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //torre blanco
+            case 9: DrawTexture(t->texturedb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //dama blanco
+            case -1: DrawTexture(t->texturepn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //peon negro
+            case -2: DrawTexture(t->texturean, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //alfil negro
+            case -3: DrawTexture(t->texturecn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //caballo negro
+            case -5: DrawTexture(t->texturetn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //torre negro
+            case -9: DrawTexture(t->texturedn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //dama negro
+            case 100: DrawTexture(t->texturerb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //rey blanco
+            case -100: DrawTexture(t->texturern, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //rey negro
+            }
+        }
+
 }
 
 
@@ -53,11 +73,7 @@ void drawBoard(int board[8][8])
         }
     }
     //coloca las piezas en su lugar
-    for (int j = 0; j < SCREAN_WIDTH / REC_SIZE; j++)
-        for (int i = 0; i < SCREAN_HEIGHT / REC_SIZE; i++)
-        {
-            drawPiece(i, j, board);
-        }
+
 }
 
 
@@ -193,7 +209,7 @@ int changePeaces(int board[8][8], Player* p)
             // matar enemigo
             board[p->whereToMoveY][p->whereToMoveX] = what;
             board[p->whatToMoveY][p->whatToMoveX] = 0;
-            return 1;
+            return 0;
         }
         // vas contra tu equipo! cambia where
         return 1;
