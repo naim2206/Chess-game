@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include "raylib.h"
 
+
+void loadTextures()
+{
+
+}
+
+
 // revisa que pieza se debe colocar y la dibuja
 void drawPiece(int i, int j, int board[8][8])
 {
