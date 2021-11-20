@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 //https://github.com/austin0209/just-chess
-
+//goes to main branch
 // peon 1, alfil 2, caballo 3, torre 5, Dama 9, rey 100, nada 0, negativo si es negro;
 //que piezas estan en que lugar
 int board_pieces[8][8] = {
