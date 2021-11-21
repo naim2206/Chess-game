@@ -29,6 +29,8 @@ int board_pieces[8][8] = {
     {81, 82, 83, 84, 85, 86, 87, 88}
 };*/
 
+// 0 negros, 1 blancos
+
 
 int main()
 {
@@ -55,7 +57,6 @@ int main()
             DrawText(pr, 10, 10, 20, BLUE);
         }
         // hasta aqui
-    // porque los peones son tan hdp?
         //falta revisar lo de los turnos
         EndDrawing();
         makeMove(&band, p, board_pieces);
