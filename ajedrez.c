@@ -156,11 +156,25 @@ int revisarMovAlfil(int board[8][8], Player* p)
 {
     int diffMovY = p->whereToMoveY - p->whatToMoveY;
     int diffMovX = p->whereToMoveX - p->whatToMoveX;
+    int initX = p->whatToMoveX, initY = p->whatToMoveY;
+    int finX = p->whereToMoveX;
+    int dirX = diffMovX < 0 ? -1 : 1;
+    int dirY = diffMovY < 0 ? -1 : 1;
     diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
     diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
 
+
     if (diffMovY == diffMovX)
     {
+        while (initX != (finX - dirX))
+        {
+            initX += dirX;
+            initY += dirY;
+            if (board[initY][initX] != 0)
+            {
+                return 0;
+            }
+        }
         return 1;
     }
     return 0;
@@ -168,8 +182,42 @@ int revisarMovAlfil(int board[8][8], Player* p)
 
 int revisarMovTorre(int board[8][8], Player* p)
 {
-    if (p->whatToMoveX == p->whereToMoveX || p->whatToMoveY == p->whereToMoveY)
+    int initX = p->whatToMoveX, initY = p->whatToMoveY;
+    int finY = p->whereToMoveY, finX = p->whereToMoveX;
+    int diffMovY = p->whereToMoveY - p->whatToMoveY;
+    int diffMovX = p->whereToMoveX - p->whatToMoveX;
+    int dir = 1;
+
+    if (diffMovX == 0)
     {
+        if (diffMovY < 0)
+        {
+            dir *= -1;
+        }
+        while ((finY - dir) != initY)
+        {
+            initY += dir;
+            if (board[initY][initX] != 0)
+            {
+                return 0;
+            }
+        }
+        return 1;
+    }
+    if (diffMovY == 0)
+    {
+        if (diffMovX < 0)
+        {
+            dir *= -1;
+        }
+        while ((finX - dir) != initX)
+        {
+            initX += dir;
+            if (board[initY][initX] != 0)
+            {
+                return 0;
+            }
+        }
         return 1;
     }
     return 0;
@@ -211,19 +259,54 @@ int revisarMovRey(Player* p)
     return 0;
 }
 
-int revisarMovDama(Player* p)
+int revisarMovDama(Player* p, int board[8][8])
 {
     int diffMovY = p->whereToMoveY - p->whatToMoveY;
     int diffMovX = p->whereToMoveX - p->whatToMoveX;
+    int initX = p->whatToMoveX, initY = p->whatToMoveY;
+    int finX = p->whereToMoveX, finY = p->whereToMoveY;
+    int dirX = diffMovX < 0 ? -1 : 1;
+    int dirY = diffMovY < 0 ? -1 : 1;
     diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
     diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
 
     if (diffMovY == 0)
+    {
+        while ((finX - dirX) != initX)
+        {
+            initX += dirX;
+            if (board[initY][initX] != 0)
+            {
+                return 0;
+            }
+        }
         return 1;
+    }
     if (diffMovX == 0)
+    {
+        while ((finY - dirY) != initY)
+        {
+            initY += dirY;
+            if (board[initY][initX] != 0)
+            {
+                return 0;
+            }
+        }
         return 1;
+    }
     if (diffMovY == diffMovX)
+    {
+        while (initX != (finX - dirX))
+        {
+            initX += dirX;
+            initY += dirY;
+            if (board[initY][initX] != 0)
+            {
+                return 0;
+            }
+        }
         return 1;
+    }
     return 0;
 }
 
@@ -241,8 +324,8 @@ int possibleMovePerPiece(int board[8][8], Player* p, int what)
     case -3: return revisarMovCaballo(p);
     case 100: return revisarMovRey(p);
     case -100: return revisarMovRey(p);
-    case 9: return revisarMovDama(p);
-    case -9: return revisarMovDama(p);
+    case 9: return revisarMovDama(p, board);
+    case -9: return revisarMovDama(p, board);
     default: return 1; // por ahora
     }
 }
