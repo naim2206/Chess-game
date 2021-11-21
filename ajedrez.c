@@ -113,6 +113,9 @@ Player* newPlayer()
     p->whereToMoveY = 9;
     p->whatToMoveX = 9;
     p->whatToMoveY = 9;
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 8; j++)
+            p->primeraVezPeones[i][j] = 1;
     return p;
 }
 
@@ -126,10 +129,19 @@ Game* newGame()
 
 int revisarMovPeonBlanco(int board[8][8], Player* p)
 {
+    int maxMove = 1;
+
+    if (p->primeraVezPeones[1][p->whatToMoveX] == 1 && board[p->whatToMoveY - 1][p->whatToMoveX] == 0 && p->whatToMoveY == 6)
+    {
+        maxMove = 2;
+
+    }
+
     if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
-        if (p->whatToMoveY - p->whereToMoveY == 1)
+        if (p->whatToMoveY - p->whereToMoveY <= maxMove && (p->whatToMoveY - p->whereToMoveY > 0))
         {
+            p->primeraVezPeones[1][p->whatToMoveX] = 0;
             return 1;
         }
     }
@@ -140,10 +152,19 @@ int revisarMovPeonBlanco(int board[8][8], Player* p)
 
 int revisarMovPeonNegro(int board[8][8], Player* p)
 {
+
+    int maxMove = -1;
+
+    if (p->primeraVezPeones[0][p->whatToMoveX] == 1 && board[p->whatToMoveY + 1][p->whatToMoveX] == 0 && p->whatToMoveY == 1)
+    {
+        maxMove = -2;
+    }
+
     if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
-        if (p->whereToMoveY - p->whatToMoveY < 2 && p->whatToMoveY - p->whereToMoveY < 0)
+        if (p->whatToMoveY - p->whereToMoveY >= maxMove && (p->whatToMoveY - p->whereToMoveY < 0))
         {
+            p->primeraVezPeones[0][p->whatToMoveX] = 0;
             return 1;
         }
     }
@@ -338,7 +359,6 @@ int changePeaces(int board[8][8], Player* p)
     // tambien falta nothingInMyWay();
     if (possibleMovePerPiece(board, p, what) == 1)
     {
-        // los peones son super hdp 100% confirmado
         if (where == 0)
         {
             //mover pieza

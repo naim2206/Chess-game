@@ -13,6 +13,7 @@ typedef struct player
     int whereToMoveY;
     int whatToMoveX;
     int whatToMoveY;
+    int primeraVezPeones[2][8];
 } Player;
 
 typedef struct game
