@@ -124,7 +124,7 @@ Game* newGame()
 }
 
 
-int revisarMovPeonBlanco(int board[8][8], Player* p, int what)
+int revisarMovPeonBlanco(int board[8][8], Player* p)
 {
     if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
@@ -138,7 +138,7 @@ int revisarMovPeonBlanco(int board[8][8], Player* p, int what)
     return 0;
 }
 
-int revisarMovPeonNegro(int board[8][8], Player* p, int what)
+int revisarMovPeonNegro(int board[8][8], Player* p)
 {
     if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
@@ -152,7 +152,7 @@ int revisarMovPeonNegro(int board[8][8], Player* p, int what)
     return 0;
 }
 
-int revisarMovAlfil(int board[8][8], Player* p, int what)
+int revisarMovAlfil(int board[8][8], Player* p)
 {
     int diffMovY = p->whereToMoveY - p->whatToMoveY;
     int diffMovX = p->whereToMoveX - p->whatToMoveX;
@@ -166,7 +166,7 @@ int revisarMovAlfil(int board[8][8], Player* p, int what)
     return 0;
 }
 
-int revisarMovTorre(int board[8][8], Player* p, int what)
+int revisarMovTorre(int board[8][8], Player* p)
 {
     if (p->whatToMoveX == p->whereToMoveX || p->whatToMoveY == p->whereToMoveY)
     {
@@ -175,16 +175,74 @@ int revisarMovTorre(int board[8][8], Player* p, int what)
     return 0;
 }
 
+int revisarMovCaballo(Player* p)
+{
+    int diffMovY = p->whereToMoveY - p->whatToMoveY;
+    int diffMovX = p->whereToMoveX - p->whatToMoveX;
+    diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
+    diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
+    if ((diffMovX == 1 && diffMovY == 2) || (diffMovX == 2 && diffMovY == 1))
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int revisarMovRey(Player* p)
+{
+    int diffMovY = p->whereToMoveY - p->whatToMoveY;
+    int diffMovX = p->whereToMoveX - p->whatToMoveX;
+    diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
+    diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
+    if (diffMovX == 1)
+    {
+        if (diffMovY <= 1)
+        {
+            return 1;
+        }
+    }
+    if (diffMovY == 1)
+    {
+        if (diffMovX <= 1)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int revisarMovDama(Player* p)
+{
+    int diffMovY = p->whereToMoveY - p->whatToMoveY;
+    int diffMovX = p->whereToMoveX - p->whatToMoveX;
+    diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
+    diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
+
+    if (diffMovY == 0)
+        return 1;
+    if (diffMovX == 0)
+        return 1;
+    if (diffMovY == diffMovX)
+        return 1;
+    return 0;
+}
+
 int possibleMovePerPiece(int board[8][8], Player* p, int what)
 {
     switch (what)
     {
-    case 1: return revisarMovPeonBlanco(board, p, what);
-    case -1: return revisarMovPeonNegro(board, p, what);
-    case 2: return revisarMovAlfil(board, p, what);
-    case -2:return revisarMovAlfil(board, p, what);
-    case 5: return revisarMovTorre(board, p, what);
-    case -5: return revisarMovTorre(board, p, what);
+    case 1: return revisarMovPeonBlanco(board, p);
+    case -1: return revisarMovPeonNegro(board, p);
+    case 2: return revisarMovAlfil(board, p);
+    case -2:return revisarMovAlfil(board, p);
+    case 5: return revisarMovTorre(board, p);
+    case -5: return revisarMovTorre(board, p);
+    case 3: return revisarMovCaballo(p);
+    case -3: return revisarMovCaballo(p);
+    case 100: return revisarMovRey(p);
+    case -100: return revisarMovRey(p);
+    case 9: return revisarMovDama(p);
+    case -9: return revisarMovDama(p);
     default: return 1; // por ahora
     }
 }

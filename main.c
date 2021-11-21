@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 //https://github.com/austin0209/just-chess
-//goes to main branch
 // peon 1, alfil 2, caballo 3, torre 5, Dama 9, rey 100, nada 0, negativo si es negro;
 //que piezas estan en que lugar
 int board_pieces[8][8] = {
@@ -17,8 +16,6 @@ int board_pieces[8][8] = {
     {5,3,2,9,100,2,3,5},
 };
 
-// gg mov de: peones (1/2), alfil, torre
-// nmms pero se puede saltar piezas que kk
 
 // identificar los lugares en el tablero
 /*int board_values[8][8] = {
