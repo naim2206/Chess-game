@@ -126,25 +126,29 @@ Game* newGame()
 
 int revisarMovPeonBlanco(int board[8][8], Player* p, int what)
 {
-    if (p->whatToMoveX == p->whereToMoveX)
+    if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
-        if (p->whatToMoveY - p->whereToMoveY < 2 && p->whatToMoveY - p->whereToMoveY > 0)
+        if (p->whatToMoveY - p->whereToMoveY == 1)
         {
             return 1;
         }
     }
+    if (board[p->whereToMoveY][p->whereToMoveX] < 0 && p->whatToMoveY - p->whereToMoveY == 1 && ((p->whatToMoveX - p->whereToMoveX) == 1 ? (p->whatToMoveX - p->whereToMoveX) : (-(p->whatToMoveX - p->whereToMoveX)) == 1))
+        return 1;
     return 0;
 }
 
 int revisarMovPeonNegro(int board[8][8], Player* p, int what)
 {
-    if (p->whatToMoveX == p->whereToMoveX)
+    if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
         if (p->whereToMoveY - p->whatToMoveY < 2 && p->whatToMoveY - p->whereToMoveY < 0)
         {
             return 1;
         }
     }
+    if (board[p->whereToMoveY][p->whereToMoveX] > 0 && p->whatToMoveY - p->whereToMoveY == -1 && ((p->whatToMoveX - p->whereToMoveX) == 1 ? (p->whatToMoveX - p->whereToMoveX) : (-(p->whatToMoveX - p->whereToMoveX)) == 1))
+        return 1;
     return 0;
 }
 
