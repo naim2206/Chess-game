@@ -20,6 +20,7 @@ typedef struct game
 {
     // -1 negro, 1 blanco
     int turn;
+    int band;
 } Game;
 
 typedef struct piece
@@ -48,13 +49,17 @@ void drawBoard(int board[8][8]);
 
 Player* newPlayer();
 
-void makeMove(int* band, Player* p, int board_pieces[8][8]);
+void makeMove(Game* g, Player* p, int board_pieces[8][8]);
 
 Game* newGame();
 
 myTexture* loadTextures();
 
 void drawPieces(int board[8][8], myTexture* t);
+
+int checkWin(int board[8][8]);
+
+void showWinner(int whoWon);
 
 
 #endif

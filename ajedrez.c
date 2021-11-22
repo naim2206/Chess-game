@@ -1,6 +1,7 @@
 #include "ajedrez.h"
 #include <stdlib.h>
 #include "raylib.h"
+#include <string.h>
 
 
 myTexture* loadTextures()
@@ -123,6 +124,7 @@ Game* newGame()
 {
     Game* g = malloc(sizeof(Game));
     g->turn = 1;
+    g->band = 0;
     return g;
 }
 
@@ -382,12 +384,44 @@ int changePeaces(int board[8][8], Player* p)
     return 0;
 }
 
-void makeMove(int* band, Player* p, int board_pieces[8][8])
+void makeMove(Game* g, Player* p, int board_pieces[8][8])
 {
-    if (*band == 0)
-        *band = whatMove(p, board_pieces);
-    else if (*band == 1)
-        *band = whereMove(p);
-    else if (*band == 2)
-        *band = changePeaces(board_pieces, p);
+    if (g->band == 0)
+        g->band = whatMove(p, board_pieces);
+    else if (g->band == 1)
+        g->band = whereMove(p);
+    else if (g->band == 2)
+        g->band = changePeaces(board_pieces, p);
+}
+
+int checkWin(int board[8][8])
+{
+    int blackWin = -1;
+    int whiteWin = 1;
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+        {
+            if (board[i][j] == 100)
+                blackWin = 0;
+            if (board[i][j] == -100)
+                whiteWin = 0;
+        }
+    return blackWin == -1 ? blackWin : whiteWin == 1 ? whiteWin : 0;
+}
+
+void showWinner(int whoWon)
+{
+    char text[11];
+    if (whoWon == 1)
+    {
+        char textw[11] = "White won!";
+        strcpy(text, textw);
+    }
+    else
+    {
+        char textb[11] = "Black won!";
+        strcpy(text, textb);
+    }
+    DrawRectangle(50, 120, 300, 150, WHITE);
+    DrawText(text, 75, 175, 50, BLACK);
 }
