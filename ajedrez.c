@@ -24,6 +24,7 @@ myTexture* loadTextures()
 }
 
 
+
 // revisa que pieza se debe colocar y la dibuja
 void drawPieces(int board[8][8], myTexture* t)
 {
@@ -33,18 +34,18 @@ void drawPieces(int board[8][8], myTexture* t)
         {
             switch (board[j][i])
             {
-            case 1: DrawTexture(t->texturepb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //peon blanco
-            case 2: DrawTexture(t->textureab, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //alfil blanco
-            case 3: DrawTexture(t->texturecb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //caballo blanco
-            case 5: DrawTexture(t->texturetb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //torre blanco
-            case 9: DrawTexture(t->texturedb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //dama blanco
-            case -1: DrawTexture(t->texturepn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //peon negro
-            case -2: DrawTexture(t->texturean, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //alfil negro
-            case -3: DrawTexture(t->texturecn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //caballo negro
-            case -5: DrawTexture(t->texturetn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //torre negro
-            case -9: DrawTexture(t->texturedn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //dama negro
-            case 100: DrawTexture(t->texturerb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //rey blanco
-            case -100: DrawTexture(t->texturern, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //rey negro
+                case 1: DrawTexture(t->texturepb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //peon blanco
+                case 2: DrawTexture(t->textureab, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //alfil blanco
+                case 3: DrawTexture(t->texturecb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //caballo blanco
+                case 5: DrawTexture(t->texturetb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //torre blanco
+                case 9: DrawTexture(t->texturedb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //dama blanco
+                case -1: DrawTexture(t->texturepn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //peon negro
+                case -2: DrawTexture(t->texturean, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //alfil negro
+                case -3: DrawTexture(t->texturecn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //caballo negro
+                case -5: DrawTexture(t->texturetn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //torre negro
+                case -9: DrawTexture(t->texturedn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //dama negro
+                case 100: DrawTexture(t->texturerb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //rey blanco
+                case -100: DrawTexture(t->texturern, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //rey negro
             }
         }
 
@@ -126,8 +127,21 @@ Game* newGame()
     g->turn = 1;
     g->band = 0;
     return g;
+
 }
 
+int turn(Game *g)
+{
+    return g->turn;
+}
+
+void switchPlayer(Game *g)
+{
+    if(g->turn==-1)
+        g->turn=1;
+    else
+        g->turn=-1;
+}
 
 int revisarMovPeonBlanco(int board[8][8], Player* p)
 {
@@ -337,19 +351,19 @@ int possibleMovePerPiece(int board[8][8], Player* p, int what)
 {
     switch (what)
     {
-    case 1: return revisarMovPeonBlanco(board, p);
-    case -1: return revisarMovPeonNegro(board, p);
-    case 2: return revisarMovAlfil(board, p);
-    case -2:return revisarMovAlfil(board, p);
-    case 5: return revisarMovTorre(board, p);
-    case -5: return revisarMovTorre(board, p);
-    case 3: return revisarMovCaballo(p);
-    case -3: return revisarMovCaballo(p);
-    case 100: return revisarMovRey(p);
-    case -100: return revisarMovRey(p);
-    case 9: return revisarMovDama(p, board);
-    case -9: return revisarMovDama(p, board);
-    default: return 1; // por ahora
+        case 1: return revisarMovPeonBlanco(board, p);
+        case -1: return revisarMovPeonNegro(board, p);
+        case 2: return revisarMovAlfil(board, p);
+        case -2:return revisarMovAlfil(board, p);
+        case 5: return revisarMovTorre(board, p);
+        case -5: return revisarMovTorre(board, p);
+        case 3: return revisarMovCaballo(p);
+        case -3: return revisarMovCaballo(p);
+        case 100: return revisarMovRey(p);
+        case -100: return revisarMovRey(p);
+        case 9: return revisarMovDama(p, board);
+        case -9: return revisarMovDama(p, board);
+        default: return 1; // por ahora
     }
 }
 

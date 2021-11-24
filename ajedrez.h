@@ -7,6 +7,7 @@
 
 #include "raylib.h"
 
+
 typedef struct player
 {
     int whereToMoveX;
@@ -61,5 +62,8 @@ int checkWin(int board[8][8]);
 
 void showWinner(int whoWon);
 
+char getCurrentPlayer(Game *g);
+
+void switchPlayer(Game *g);
 
 #endif
