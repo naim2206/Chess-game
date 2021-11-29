@@ -3,7 +3,7 @@
 #include "raylib.h"
 #include <string.h>
 
-
+// carga texturas a partir de imágenes de las piezas
 myTexture* loadTextures()
 {
     myTexture* t = malloc(sizeof(myTexture));
@@ -24,10 +24,9 @@ myTexture* loadTextures()
 }
 
 
-// revisa que pieza se debe colocar y la dibuja
+// pone texturas de las piezas en su posición correspondiente según matriz de tablero
 void drawPieces(int board[8][8], myTexture* t)
 {
-
     for (int j = 0; j < SCREAN_WIDTH / REC_SIZE; j++)
         for (int i = 0; i < SCREAN_HEIGHT / REC_SIZE; i++)
         {
@@ -52,13 +51,12 @@ void drawPieces(int board[8][8], myTexture* t)
 
 
 
-
-//mostrar tablero y piezas
-void drawBoard(int board[8][8])
+// realiza la estructura del tablero (cuadros blancos y negros)
+void drawBoard()
 {
     //fondo blanco
     ClearBackground(RAYWHITE);
-    //pone cuadros negros
+    //pone cuadros negros en columnas impares con filas pares
     for (int i = 1; i < SCREAN_WIDTH / REC_SIZE; i += 2)
     {
         for (int j = 0; j < SCREAN_HEIGHT / REC_SIZE; j += 2)
@@ -66,6 +64,7 @@ void drawBoard(int board[8][8])
             DrawRectangle(i * REC_SIZE, j * REC_SIZE, REC_SIZE, REC_SIZE, DARKGRAY);
         }
     }
+    // pone cuadros negros en columnas pares con filas impares
     for (int i = 0; i < SCREAN_WIDTH / REC_SIZE; i += 2)
     {
         for (int j = 1; j < SCREAN_HEIGHT / REC_SIZE; j += 2)
@@ -73,40 +72,47 @@ void drawBoard(int board[8][8])
             DrawRectangle(i * REC_SIZE, j * REC_SIZE, REC_SIZE, REC_SIZE, DARKGRAY);
         }
     }
-    //coloca las piezas en su lugar
 
 }
 
-
+// obtiene la posición en la matriz de tablero de la pieza que se quiere mover
 int whatMove(Player* p, int board[8][8])
 {
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
+        // que no se esté seleccionando un cuadro vacío
         if (board[GetMouseY() / REC_SIZE][GetMouseX() / REC_SIZE] != 0)
         {
+            // guardar datos en estructura player
             p->whatToMoveX = GetMouseX() / REC_SIZE;
             p->whatToMoveY = GetMouseY() / REC_SIZE;
+            // pasar a seleccionar a donde se va a mover
             return 1;
         }
     }
+    // seguir esperando la seleccion del usuario
     return 0;
 
 }
 
+// obtiene la posición en la matriz de tablero del lugar al que se va a mover la pieza
 int whereMove(Player* p)
 {
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
+        // guardar datos en estructura player
         p->whereToMoveX = GetMouseX() / REC_SIZE;
         p->whereToMoveY = GetMouseY() / REC_SIZE;
+        // pasar a realizar el movimiento
         return 2;
     }
+    // seguir esperando la selección del usuario
     return 1;
 
 }
 
 
-
+// datos iniciales a estrucura player
 Player* newPlayer()
 {
     Player* p = malloc(sizeof(Player));
@@ -114,176 +120,254 @@ Player* newPlayer()
     p->whereToMoveY = 9;
     p->whatToMoveX = 9;
     p->whatToMoveY = 9;
-    for (int i = 0; i < 2; i++)
-        for (int j = 0; j < 8; j++)
-            p->primeraVezPeones[i][j] = 1;
+
     return p;
 }
 
+
+// datos iniciales a estructura game
 Game* newGame()
 {
     Game* g = malloc(sizeof(Game));
     g->turn = 1;
     g->band = 0;
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 8; j++)
+            g->primeraVezPeones[i][j] = 1;
     return g;
 }
 
-
-int revisarMovPeonBlanco(int board[8][8], Player* p)
+// regresa 1 si es posible mover el peon y 0 si no
+int revisarMovPeonBlanco(int board[8][8], Player* p, Game* g)
 {
+
+    // se puede mover 1 hacia arriba
     int maxMove = 1;
 
-    if (p->primeraVezPeones[1][p->whatToMoveX] == 1 && board[p->whatToMoveY - 1][p->whatToMoveX] == 0 && p->whatToMoveY == 6)
+    // es la primera vez que se mueve y no hay nada en frente
+    if (g->primeraVezPeones[1][p->whatToMoveX] == 1 && board[p->whatToMoveY - 1][p->whatToMoveX] == 0 && p->whatToMoveY == 6)
     {
+        // puede moverse 2 posiciones
         maxMove = 2;
-
     }
 
+    // se va a mover a la misma fila y a un lugar vacío
     if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
+        // se mueve menos que el maximo y no se regresa
         if (p->whatToMoveY - p->whereToMoveY <= maxMove && (p->whatToMoveY - p->whereToMoveY > 0))
         {
-            p->primeraVezPeones[1][p->whatToMoveX] = 0;
+            // ya no es la primera vez que se mueve
+            g->primeraVezPeones[1][p->whatToMoveX] = 0;
+            // se puede realizar el movimiento
             return 1;
         }
     }
+
+    // quiere ir a pieza negra, se mueve hacia adelante y hacia uno de los lados (cruzado)
     if (board[p->whereToMoveY][p->whereToMoveX] < 0 && p->whatToMoveY - p->whereToMoveY == 1 && ((p->whatToMoveX - p->whereToMoveX) == 1 ? (p->whatToMoveX - p->whereToMoveX) : (-(p->whatToMoveX - p->whereToMoveX)) == 1))
+        // se puede realizar el movimiento y es un asesinato
         return 1;
     return 0;
 }
 
-int revisarMovPeonNegro(int board[8][8], Player* p)
-{
 
+// regresa 1 si es posible mover el peon y 0 si no
+int revisarMovPeonNegro(int board[8][8], Player* p, Game* g)
+{
+    // se puede mover 1 hacia abajo
     int maxMove = -1;
 
-    if (p->primeraVezPeones[0][p->whatToMoveX] == 1 && board[p->whatToMoveY + 1][p->whatToMoveX] == 0 && p->whatToMoveY == 1)
+    // es la primera vez que se mueve y no hay nada en frente
+    if (g->primeraVezPeones[0][p->whatToMoveX] == 1 && board[p->whatToMoveY + 1][p->whatToMoveX] == 0 && p->whatToMoveY == 1)
     {
+        // puede moverse 2 posiciones hacia abajo
         maxMove = -2;
     }
 
+    // se va a mover a la misma fila y a un lugar vacío
     if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
+        // se mueve menos que el maximo y hacia abajo
         if (p->whatToMoveY - p->whereToMoveY >= maxMove && (p->whatToMoveY - p->whereToMoveY < 0))
         {
-            p->primeraVezPeones[0][p->whatToMoveX] = 0;
+            // ya no es la primera vez que se mueve
+            g->primeraVezPeones[0][p->whatToMoveX] = 0;
+            // se puede realizar el movimiento
             return 1;
         }
     }
+
+    // se quiere mover hacia donde hay una pieza blanca y es uno hacia abajo y hacia alguno de los lados (cruzado)
     if (board[p->whereToMoveY][p->whereToMoveX] > 0 && p->whatToMoveY - p->whereToMoveY == -1 && ((p->whatToMoveX - p->whereToMoveX) == 1 ? (p->whatToMoveX - p->whereToMoveX) : (-(p->whatToMoveX - p->whereToMoveX)) == 1))
+        // se puede realizar el movimiento, es un asesinato
         return 1;
     return 0;
 }
 
+
+// regresa 1 si es posible mover la pieza y 0 si no
 int revisarMovAlfil(int board[8][8], Player* p)
 {
+    // cambios en dirección x y y
     int diffMovY = p->whereToMoveY - p->whatToMoveY;
     int diffMovX = p->whereToMoveX - p->whatToMoveX;
+
     int initX = p->whatToMoveX, initY = p->whatToMoveY;
     int finX = p->whereToMoveX;
+
+    // obtener dirección en x y ya del movimiento
     int dirX = diffMovX < 0 ? -1 : 1;
     int dirY = diffMovY < 0 ? -1 : 1;
+
+    // valores absolutos a diferencias de movimiento
     diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
     diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
 
-
+    // hay movimiento cruzado
     if (diffMovY == diffMovX)
     {
+        // revisar que no hay nada en el camino
         while (initX != (finX - dirX))
         {
+            // iterar a travez del camino que se va a tomar
             initX += dirX;
             initY += dirY;
             if (board[initY][initX] != 0)
             {
+                // hay algo en el camino, no se puede realizar movimiento
                 return 0;
             }
         }
+        // no hay nada en el camino, se puede relizar el movimiento
         return 1;
     }
+    // no hay mov. cruzado bro
     return 0;
 }
 
+
+// regresa 1 si es posible mover la pieza y 0 si no
 int revisarMovTorre(int board[8][8], Player* p)
 {
     int initX = p->whatToMoveX, initY = p->whatToMoveY;
     int finY = p->whereToMoveY, finX = p->whereToMoveX;
+
+    // cambios de posición en x y y
     int diffMovY = p->whereToMoveY - p->whatToMoveY;
     int diffMovX = p->whereToMoveX - p->whatToMoveX;
     int dir = 1;
 
+    // hay movimiento hacia arriba o abajo
     if (diffMovX == 0)
     {
+        // si el movimiento es hacia abajo cambiar dirección
         if (diffMovY < 0)
         {
             dir *= -1;
         }
+
+        // revisar que no hay nada en el camino
         while ((finY - dir) != initY)
         {
+            // iterar a lo largo del camino
             initY += dir;
             if (board[initY][initX] != 0)
             {
+                // hay algo en el camino, no se puede relizar el movimiento
                 return 0;
             }
         }
+        // se puede realizar el movimiento
         return 1;
     }
+
+    // movimiento hacia la derecha o izquierda
     if (diffMovY == 0)
     {
+        // si es hacia la izquierda cambiar dirección
         if (diffMovX < 0)
         {
             dir *= -1;
         }
+
+        // revisar que no hay nada en el camino
         while ((finX - dir) != initX)
         {
+            // iterar a lo largo del camino
             initX += dir;
             if (board[initY][initX] != 0)
             {
+                // hay algo en el camino, no se puede relizar el movimiento
                 return 0;
             }
         }
+        // camino libre, se puede relizar el movimiento
         return 1;
     }
+    // el movimiento no es recto bro
     return 0;
 }
 
+
+// regresa 1 si es posible mover la pieza y 0 si no
 int revisarMovCaballo(Player* p)
 {
+    // obtener valor absoluto de movimiento en x y y
     int diffMovY = p->whereToMoveY - p->whatToMoveY;
     int diffMovX = p->whereToMoveX - p->whatToMoveX;
     diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
     diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
+
+    // el movimiento es 1 en una dirección y 2 en la otra (en L)
     if ((diffMovX == 1 && diffMovY == 2) || (diffMovX == 2 && diffMovY == 1))
     {
+        // es posible mover la pieza
         return 1;
     }
+    // no se puede mover
     return 0;
 }
 
+
+// regresa 1 si es posible mover la pieza y 0 si no
 int revisarMovRey(Player* p)
 {
+    // obtener valores absolutos de cambios en el movimiento
     int diffMovY = p->whereToMoveY - p->whatToMoveY;
     int diffMovX = p->whereToMoveX - p->whatToMoveX;
     diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
     diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
+
+    // se mueve solo 1 en x
     if (diffMovX == 1)
     {
+        // se mueve maximo 1 en y
         if (diffMovY <= 1)
         {
+            // se puede realizar el movimiento
             return 1;
         }
     }
+    // se muve solo 1 en y
     if (diffMovY == 1)
     {
+        // se mueve maximo 1 en x
         if (diffMovX <= 1)
         {
+            // se puede realizar el movimiento
             return 1;
         }
     }
+    // se esta moviendo demasiado la pieza, no se puede mover 
     return 0;
 }
 
+
+// regresa 1 si es posible mover la pieza y 0 si no
 int revisarMovDama(Player* p, int board[8][8])
 {
+    // obtener dirección y valores absolutos de diferencias de movimientos
     int diffMovY = p->whereToMoveY - p->whatToMoveY;
     int diffMovX = p->whereToMoveX - p->whatToMoveX;
     int initX = p->whatToMoveX, initY = p->whatToMoveY;
@@ -293,52 +377,68 @@ int revisarMovDama(Player* p, int board[8][8])
     diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
     diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
 
+    // se mueve horizontalmente
     if (diffMovY == 0)
     {
+        // revisa que no haya nada en el camino
         while ((finX - dirX) != initX)
         {
             initX += dirX;
             if (board[initY][initX] != 0)
             {
+                // hay algo, no se puede mover
                 return 0;
             }
         }
+        // se puede mover
         return 1;
     }
+
+    // se mueve verticalmente
     if (diffMovX == 0)
     {
+        // revisa que no haya nada en el camino
         while ((finY - dirY) != initY)
         {
             initY += dirY;
             if (board[initY][initX] != 0)
             {
+                // hay algo, no se puede mover
                 return 0;
             }
         }
+        // se puede mover
         return 1;
     }
+
+    // se mueve de forma curzada
     if (diffMovY == diffMovX)
     {
+        // revisa que no haya nada en el camino
         while (initX != (finX - dirX))
         {
             initX += dirX;
             initY += dirY;
             if (board[initY][initX] != 0)
             {
+                // hay algo, no se puede mover
                 return 0;
             }
         }
+        // se puede mover
         return 1;
     }
+    // el movimiento sta muy raro, no se puede hacer
     return 0;
 }
 
-int possibleMovePerPiece(int board[8][8], Player* p, int what)
+// dependiendo de la pieza seleccionada por el usuario, se revisa si puede realizarse el movimiento (1 si, 0 no)
+int possibleMovePerPiece(int board[8][8], Player* p, int what, Game* g)
 {
     switch (what)
     {
-    case 1: return revisarMovPeonBlanco(board, p);
-    case -1: return revisarMovPeonNegro(board, p);
+    case 1: return revisarMovPeonBlanco(board, p, g);
+    case -1: return revisarMovPeonNegro(board, p, g);
     case 2: return revisarMovAlfil(board, p);
     case -2:return revisarMovAlfil(board, p);
     case 5: return revisarMovTorre(board, p);
@@ -349,69 +449,87 @@ int possibleMovePerPiece(int board[8][8], Player* p, int what)
     case -100: return revisarMovRey(p);
     case 9: return revisarMovDama(p, board);
     case -9: return revisarMovDama(p, board);
-    default: return 1; // por ahora
+    default: return 0;
     }
 }
 
-int changePeaces(int board[8][8], Player* p)
+int changePeaces(int board[8][8], Player* p, Game* g)
 {
+    // que hay en donde se quiere mover
     int where = board[p->whereToMoveY][p->whereToMoveX];
+    // que se va a mover
     int what = board[p->whatToMoveY][p->whatToMoveX];
 
-    // tambien falta nothingInMyWay();
-    if (possibleMovePerPiece(board, p, what) == 1)
+    // el movimiento es valido
+    if (possibleMovePerPiece(board, p, what, g) == 1)
     {
         if (where == 0)
         {
-            //mover pieza
+            //va a un lugar vacío, se intercambia
             int temp;
             temp = what;
             board[p->whatToMoveY][p->whatToMoveX] = where;
             board[p->whereToMoveY][p->whereToMoveX] = temp;
+            // regresa a selección de pieza a mover
             return 0;
         }
-        // para que no te puedas suicidar
+
+        // para no vas contra tu propio equipo
         if ((where > 0 && what < 0) || (where < 0 && what > 0))
         {
             // matar enemigo
             board[p->whereToMoveY][p->whereToMoveX] = what;
             board[p->whatToMoveY][p->whatToMoveX] = 0;
+            // regresa a selección de pieza a mover
             return 0;
         }
-        // vas contra tu equipo! cambia where
+
+        // regresa a selección de lugar al que moverse
         return 1;
     }
+    // regresa a selección de pieza a mover
     return 0;
 }
 
+// permite seleccionar posiciones de movimiento y realizar movimiento
 void makeMove(Game* g, Player* p, int board_pieces[8][8])
 {
     if (g->band == 0)
+        // selección de pieza a mover
         g->band = whatMove(p, board_pieces);
     else if (g->band == 1)
+        // selección de lugar a moverse
         g->band = whereMove(p);
     else if (g->band == 2)
-        g->band = changePeaces(board_pieces, p);
+        // realizar movimiento
+        g->band = changePeaces(board_pieces, p, g);
 }
 
+// revisa quien gana -1 negro, 1 blanco, 0 nadie
 int checkWin(int board[8][8])
 {
     int blackWin = -1;
     int whiteWin = 1;
+    // itera a lo largo del tablero
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 8; j++)
         {
             if (board[i][j] == 100)
+                // hay rey blano, no gana el negro
                 blackWin = 0;
             if (board[i][j] == -100)
+                // hay rey negro, no gana el blanco
                 whiteWin = 0;
         }
     return blackWin == -1 ? blackWin : whiteWin == 1 ? whiteWin : 0;
 }
 
+// muestra texto del jugador ganador
 void showWinner(int whoWon)
 {
     char text[11];
+
+    // guardar texto correspondiente a ganador
     if (whoWon == 1)
     {
         char textw[11] = "White won!";
@@ -422,6 +540,8 @@ void showWinner(int whoWon)
         char textb[11] = "Black won!";
         strcpy(text, textb);
     }
+
+    //mostrar fondo blanco y texto del ganador
     DrawRectangle(50, 120, 300, 150, WHITE);
     DrawText(text, 75, 175, 50, BLACK);
 }

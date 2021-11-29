@@ -2,23 +2,22 @@
 #include "ajedrez.h"
 #include <stdlib.h>
 
-// peon 1, alfil 2, caballo 3, torre 5, Dama 9, rey 100, nada 0, 
-//negativo si es negro;
-//que piezas estan en que lugar
-int board_pieces[8][8] = {
-    {-5,-3,-2,-9,-100,-2,-3,-5},
+
+int main()
+{
+    // peon 1, alfil 2, caballo 3, torre 5, Dama 9, rey 100, nada 0, 
+    //negativo si es negro;
+    //que piezas estan en que lugar
+    int board_pieces[8][8] =
+    { {-5,-3,-2,-9,-100,-2,-3,-5},
     {-1,-1,-1,-1,-1,-1,-1,-1},
     {0,0,0,0,0,0,0,0},
     {0,0,0,0,0,0,0,0},
     {0,0,0,0,0,0,0,0},
     {0,0,0,0,0,0,0,0},
     {1,1,1,1,1,1,1,1},
-    {5,3,2,9,100,2,3,5},
-};
+    {5,3,2,9,100,2,3,5} };
 
-
-int main()
-{
     InitWindow(SCREAN_WIDTH, SCREAN_HEIGHT, "Chess");
 
     SetTargetFPS(60);
@@ -33,18 +32,21 @@ int main()
         BeginDrawing();
         if (whoWon == 0)
         {
-            drawBoard(board_pieces);
+            // nadie ha ganado
+            drawBoard();
             drawPieces(board_pieces, t);
         }
         //falta revisar lo de los turnos
         makeMove(g, p, board_pieces);
 
-        // pa debuggear
-        //char pr[10];
-        //itoa(whoWon, pr, 10);
-        //if ((IsMouseButtonDown(MOUSE_RIGHT_BUTTON)))
-        //    DrawText(pr, 10, 10, 20, BLUE);
-        // hasta aqui
+        if ((IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)))
+        {
+            //reiniciar juego, luego cambiar a un boton
+            EndDrawing();
+            CloseWindow();
+            main();
+            return 0;
+        }
 
         whoWon = checkWin(board_pieces);
         if (whoWon != 0)
