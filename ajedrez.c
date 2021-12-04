@@ -132,35 +132,43 @@ Game* newGame()
     g->turn = 1;
     g->band = 0;
     for (int i = 0; i < 2; i++)
+    {
         for (int j = 0; j < 8; j++)
             g->primeraVezPeones[i][j] = 1;
+        for (int j = 0; j < 3; j++)
+            g->primeraVezEnroque[i][j] = 1;
+    }
     return g;
 }
 
 // regresa 1 si es posible mover el peon y 0 si no
 int revisarMovPeonBlanco(int board[8][8], Player* p, Game* g)
 {
-
-    // se puede mover 1 hacia arriba
-    int maxMove = 1;
-
-    // es la primera vez que se mueve y no hay nada en frente
-    if (g->primeraVezPeones[1][p->whatToMoveX] == 1 && board[p->whatToMoveY - 1][p->whatToMoveX] == 0 && p->whatToMoveY == 6)
+    // se mueve a un lugar vacío
+    if (board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
-        // puede moverse 2 posiciones
-        maxMove = 2;
-    }
+        // se puede mover 1 hacia arriba
+        int maxMove = 1;
 
-    // se va a mover a la misma fila y a un lugar vacío
-    if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
-    {
-        // se mueve menos que el maximo y no se regresa
-        if (p->whatToMoveY - p->whereToMoveY <= maxMove && (p->whatToMoveY - p->whereToMoveY > 0))
+        // es la primera vez que se mueve y no hay nada en frente
+        if (g->primeraVezPeones[1][p->whatToMoveX] == 1 && board[p->whatToMoveY - 1][p->whatToMoveX] == 0 && p->whatToMoveY == 6)
         {
-            // ya no es la primera vez que se mueve
-            g->primeraVezPeones[1][p->whatToMoveX] = 0;
-            // se puede realizar el movimiento
-            return 1;
+            // puede moverse 2 posiciones
+            maxMove = 2;
+        }
+
+        // se va a mover a la misma fila y a un lugar vacío
+        if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
+        {
+            // se mueve menos que el maximo y no se regresa
+            if (p->whatToMoveY - p->whereToMoveY <= maxMove && (p->whatToMoveY - p->whereToMoveY > 0))
+            {
+                // ya no es la primera vez que se mueve
+                if (p->whatToMoveY == 6)
+                    g->primeraVezPeones[1][p->whatToMoveX] = 0;
+                // se puede realizar el movimiento
+                return 1;
+            }
         }
     }
 
@@ -175,29 +183,33 @@ int revisarMovPeonBlanco(int board[8][8], Player* p, Game* g)
 // regresa 1 si es posible mover el peon y 0 si no
 int revisarMovPeonNegro(int board[8][8], Player* p, Game* g)
 {
-    // se puede mover 1 hacia abajo
-    int maxMove = -1;
-
-    // es la primera vez que se mueve y no hay nada en frente
-    if (g->primeraVezPeones[0][p->whatToMoveX] == 1 && board[p->whatToMoveY + 1][p->whatToMoveX] == 0 && p->whatToMoveY == 1)
+    // se mueve a un lugar vacío
+    if (board[p->whereToMoveY][p->whereToMoveX] == 0)
     {
-        // puede moverse 2 posiciones hacia abajo
-        maxMove = -2;
-    }
+        // se puede mover 1 hacia abajo
+        int maxMove = -1;
 
-    // se va a mover a la misma fila y a un lugar vacío
-    if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
-    {
-        // se mueve menos que el maximo y hacia abajo
-        if (p->whatToMoveY - p->whereToMoveY >= maxMove && (p->whatToMoveY - p->whereToMoveY < 0))
+        // es la primera vez que se mueve y no hay nada en frente
+        if (g->primeraVezPeones[0][p->whatToMoveX] == 1 && board[p->whatToMoveY + 1][p->whatToMoveX] == 0 && p->whatToMoveY == 1)
         {
-            // ya no es la primera vez que se mueve
-            g->primeraVezPeones[0][p->whatToMoveX] = 0;
-            // se puede realizar el movimiento
-            return 1;
+            // puede moverse 2 posiciones hacia abajo
+            maxMove = -2;
+        }
+
+        // se va a mover a la misma fila y a un lugar vacío
+        if (p->whatToMoveX == p->whereToMoveX && board[p->whereToMoveY][p->whereToMoveX] == 0)
+        {
+            // se mueve menos que el maximo y hacia abajo
+            if (p->whatToMoveY - p->whereToMoveY >= maxMove && (p->whatToMoveY - p->whereToMoveY < 0))
+            {
+                if (p->whatToMoveY == 1)
+                    // ya no es la primera vez que se mueve
+                    g->primeraVezPeones[0][p->whatToMoveX] = 0;
+                // se puede realizar el movimiento
+                return 1;
+            }
         }
     }
-
     // se quiere mover hacia donde hay una pieza blanca y es uno hacia abajo y hacia alguno de los lados (cruzado)
     if (board[p->whereToMoveY][p->whereToMoveX] > 0 && p->whatToMoveY - p->whereToMoveY == -1 && ((p->whatToMoveX - p->whereToMoveX) == 1 ? (p->whatToMoveX - p->whereToMoveX) : (-(p->whatToMoveX - p->whereToMoveX)) == 1))
         // se puede realizar el movimiento, es un asesinato
@@ -248,8 +260,10 @@ int revisarMovAlfil(int board[8][8], Player* p)
 
 
 // regresa 1 si es posible mover la pieza y 0 si no
-int revisarMovTorre(int board[8][8], Player* p)
+int revisarMovTorre(int board[8][8], Player* p, Game* g)
 {
+    int colori = board[p->whatToMoveY][p->whatToMoveX] < 0 ? 1 : 0;
+    int direccionj = p->whatToMoveX == 0 ? 0 : 2;
     int initX = p->whatToMoveX, initY = p->whatToMoveY;
     int finY = p->whereToMoveY, finX = p->whereToMoveX;
 
@@ -257,55 +271,66 @@ int revisarMovTorre(int board[8][8], Player* p)
     int diffMovY = p->whereToMoveY - p->whatToMoveY;
     int diffMovX = p->whereToMoveX - p->whatToMoveX;
     int dir = 1;
-
-    // hay movimiento hacia arriba o abajo
-    if (diffMovX == 0)
+    // vas a una casilla correcta
+    if ((colori == 0 && board[p->whereToMoveY][p->whereToMoveX] <= 0)
+        || (colori == 1 && board[p->whereToMoveY][p->whereToMoveX] >= 0))
     {
-        // si el movimiento es hacia abajo cambiar dirección
-        if (diffMovY < 0)
+        // hay movimiento hacia arriba o abajo
+        if (diffMovX == 0)
         {
-            dir *= -1;
-        }
-
-        // revisar que no hay nada en el camino
-        while ((finY - dir) != initY)
-        {
-            // iterar a lo largo del camino
-            initY += dir;
-            if (board[initY][initX] != 0)
+            // si el movimiento es hacia abajo cambiar dirección
+            if (diffMovY < 0)
             {
-                // hay algo en el camino, no se puede relizar el movimiento
-                return 0;
+                dir *= -1;
             }
-        }
-        // se puede realizar el movimiento
-        return 1;
-    }
 
-    // movimiento hacia la derecha o izquierda
-    if (diffMovY == 0)
-    {
-        // si es hacia la izquierda cambiar dirección
-        if (diffMovX < 0)
-        {
-            dir *= -1;
-        }
-
-        // revisar que no hay nada en el camino
-        while ((finX - dir) != initX)
-        {
-            // iterar a lo largo del camino
-            initX += dir;
-            if (board[initY][initX] != 0)
+            // revisar que no hay nada en el camino
+            while ((finY - dir) != initY)
             {
-                // hay algo en el camino, no se puede relizar el movimiento
-                return 0;
+                // iterar a lo largo del camino
+                initY += dir;
+                if (board[initY][initX] != 0)
+                {
+                    // hay algo en el camino, no se puede relizar el movimiento
+                    return 0;
+                }
             }
+            if ((p->whatToMoveX == 0 || p->whatToMoveX == 7) && (p->whatToMoveY == 0 || p->whatToMoveY == 7))
+                // ya no es primera vez
+                g->primeraVezEnroque[colori][direccionj] = 0;
+            // se puede realizar el movimiento
+            return 1;
         }
-        // camino libre, se puede relizar el movimiento
-        return 1;
+
+        // movimiento hacia la derecha o izquierda
+        if (diffMovY == 0)
+        {
+            // si es hacia la izquierda cambiar dirección
+            if (diffMovX < 0)
+            {
+                dir *= -1;
+            }
+
+            // revisar que no hay nada en el camino
+            while ((finX - dir) != initX)
+            {
+                // iterar a lo largo del camino
+                initX += dir;
+                if (board[initY][initX] != 0)
+                {
+                    // hay algo en el camino, no se puede relizar el movimiento
+                    return 0;
+                }
+            }
+            if ((p->whatToMoveX == 0 || p->whatToMoveX == 7) && (p->whatToMoveY == 0 || p->whatToMoveY == 7))
+                // ya no es primera vez
+                g->primeraVezEnroque[colori][direccionj] = 0;
+            // camino libre, se puede relizar el movimiento
+            return 1;
+        }
+        // el movimiento no es recto bro
+        return 0;
     }
-    // el movimiento no es recto bro
     return 0;
 }
 
@@ -331,35 +356,95 @@ int revisarMovCaballo(Player* p)
 
 
 // regresa 1 si es posible mover la pieza y 0 si no
-int revisarMovRey(Player* p)
+int revisarMovRey(Player* p, Game* g, int board[8][8])
 {
+    int colori = board[p->whatToMoveY][p->whatToMoveX] < 0 ? 1 : 0;
     // obtener valores absolutos de cambios en el movimiento
     int diffMovY = p->whereToMoveY - p->whatToMoveY;
     int diffMovX = p->whereToMoveX - p->whatToMoveX;
     diffMovY = diffMovY > 0 ? diffMovY : -diffMovY;
     diffMovX = diffMovX > 0 ? diffMovX : -diffMovX;
 
-    // se mueve solo 1 en x
-    if (diffMovX == 1)
+    // se mueve a una casilla válida
+    if ((colori == 1 && board[p->whereToMoveY][p->whereToMoveX] >= 0)
+        || (colori == 0 && board[p->whereToMoveY][p->whereToMoveX] <= 0))
     {
-        // se mueve maximo 1 en y
-        if (diffMovY <= 1)
+        // se mueve solo 1 en x
+        if (diffMovX == 1)
         {
-            // se puede realizar el movimiento
-            return 1;
+            // se mueve maximo 1 en y
+            if (diffMovY <= 1)
+            {
+                // ya no es la primera vez
+                if ((colori == 1 && board[0][4] == -100)
+                    || (colori == 0 && board[7][4] == 100))
+                    g->primeraVezEnroque[colori][1] = 0;
+                // se puede realizar el movimiento
+                return 1;
+            }
         }
-    }
-    // se muve solo 1 en y
-    if (diffMovY == 1)
-    {
-        // se mueve maximo 1 en x
-        if (diffMovX <= 1)
+        // se muve solo 1 en y
+        if (diffMovY == 1)
         {
-            // se puede realizar el movimiento
-            return 1;
+            // se mueve maximo 1 en x
+            if (diffMovX <= 1)
+            {
+                if ((colori == 1 && board[0][4] == -100)
+                    || (colori == 0 && board[7][4] == 100))
+                    g->primeraVezEnroque[colori][1] = 0;
+                // se puede realizar el movimiento
+                return 1;
+            }
         }
+
+        // enroque
+        if (diffMovX == 2 && diffMovY == 0)
+        {
+            //blanco
+            if (colori == 0 && p->whatToMoveY == 7 && p->whatToMoveX == 4 && g->primeraVezEnroque[colori][1] == 1)
+            {
+                // derecha
+                if (p->whereToMoveX == 6 && board[7][7] == 5 && g->primeraVezEnroque[colori][2] == 1)
+                {
+                    if (board[7][5] == 0 && board[7][6] == 0)
+                    {
+                        return 2;
+                    }
+                }
+                // izquierda
+                if (p->whereToMoveX == 2 && board[7][0] == 5 && g->primeraVezEnroque[colori][0] == 1)
+                {
+                    if (board[7][1] == 0 && board[7][2] == 0 && board[7][3] == 0)
+                    {
+                        return 2;
+                    }
+                }
+            }
+            //negro
+            if (colori == 1 && p->whatToMoveY == 0 && p->whatToMoveX == 4 && g->primeraVezEnroque[colori][1] == 1)
+            {
+                // derecha
+                if (p->whereToMoveX == 6 && board[0][7] == -5 && g->primeraVezEnroque[colori][2] == 1)
+                {
+                    if (board[0][5] == 0 && board[0][6] == 0)
+                    {
+                        return 2;
+                    }
+                }
+                // izquierda
+                if (p->whereToMoveX == 2 && board[0][0] == -5 && g->primeraVezEnroque[colori][0] == 1)
+                {
+                    if (board[0][1] == 0 && board[0][2] == 0 && board[0][3] == 0)
+                    {
+                        return 2;
+                    }
+                }
+            }
+        }
+
+        // se esta moviendo demasiado la pieza, no se puede mover 
+        return 0;
     }
-    // se esta moviendo demasiado la pieza, no se puede mover 
     return 0;
 }
 
@@ -441,12 +526,12 @@ int possibleMovePerPiece(int board[8][8], Player* p, int what, Game* g)
     case -1: return revisarMovPeonNegro(board, p, g);
     case 2: return revisarMovAlfil(board, p);
     case -2:return revisarMovAlfil(board, p);
-    case 5: return revisarMovTorre(board, p);
-    case -5: return revisarMovTorre(board, p);
+    case 5: return revisarMovTorre(board, p, g);
+    case -5: return revisarMovTorre(board, p, g);
     case 3: return revisarMovCaballo(p);
     case -3: return revisarMovCaballo(p);
-    case 100: return revisarMovRey(p);
-    case -100: return revisarMovRey(p);
+    case 100: return revisarMovRey(p, g, board);
+    case -100: return revisarMovRey(p, g, board);
     case 9: return revisarMovDama(p, board);
     case -9: return revisarMovDama(p, board);
     default: return 0;
@@ -459,6 +544,7 @@ int changePeaces(int board[8][8], Player* p, Game* g)
     int where = board[p->whereToMoveY][p->whereToMoveX];
     // que se va a mover
     int what = board[p->whatToMoveY][p->whatToMoveX];
+
 
     // el movimiento es valido
     if (possibleMovePerPiece(board, p, what, g) == 1)
@@ -486,6 +572,55 @@ int changePeaces(int board[8][8], Player* p, Game* g)
 
         // regresa a selección de lugar al que moverse
         return 1;
+    }
+    if (possibleMovePerPiece(board, p, what, g) == 2)
+    {
+        // enroque
+        // negro
+        if (what < 0)
+        {
+            // derecha
+            if (p->whereToMoveX == 6)
+            {
+                board[0][4] = 0;
+                board[0][7] = 0;
+                board[0][5] = -5;
+                board[0][6] = -100;
+                return 0;
+            }
+            // izquierda
+            if (p->whereToMoveX == 2)
+            {
+                board[0][0] = 0;
+                board[0][4] = 0;
+                board[0][3] = -5;
+                board[0][2] = -100;
+                return 0;
+            }
+        }
+        // blanco
+        if (what > 0)
+        {
+            // derecha
+            if (p->whereToMoveX == 6)
+            {
+                board[7][4] = 0;
+                board[7][7] = 0;
+                board[7][5] = 5;
+                board[7][6] = 100;
+                return 0;
+            }
+            // izquierda
+            if (p->whereToMoveX == 2)
+            {
+                board[7][0] = 0;
+                board[7][4] = 0;
+                board[7][3] = 5;
+                board[7][2] = 100;
+                return 0;
+            }
+        }
+
     }
     // regresa a selección de pieza a mover
     return 0;
@@ -544,4 +679,18 @@ void showWinner(int whoWon)
     //mostrar fondo blanco y texto del ganador
     DrawRectangle(50, 120, 300, 150, WHITE);
     DrawText(text, 75, 175, 50, BLACK);
+}
+
+// revisa si algún peon llegó a la última fila y lo corona a reina
+void coronacion(int board[8][8])
+{
+    // revisa filas
+    for (int i = 0; i < 8; i++)
+    {
+        if (board[0][i] == 1)
+            board[0][i] = 9;
+
+        if (board[7][i] == -1)
+            board[7][i] = -9;
+    }
 }

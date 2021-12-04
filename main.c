@@ -2,6 +2,10 @@
 #include "ajedrez.h"
 #include <stdlib.h>
 
+/*
+1, 1, 1 - blanco
+1, 1, 1 - negro
+*/
 
 int main()
 {
@@ -36,8 +40,18 @@ int main()
             drawBoard();
             drawPieces(board_pieces, t);
         }
+
+        coronacion(board_pieces);
+
         //falta revisar lo de los turnos
         makeMove(g, p, board_pieces);
+
+        // pa debuggear
+        //char pr[10];
+        //itoa(whoWon, pr, 10);
+        //if ((IsMouseButtonDown(MOUSE_RIGHT_BUTTON)))
+        //    DrawText(pr, 10, 10, 20, BLUE);
+        // hasta aqui
 
         if ((IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)))
         {
