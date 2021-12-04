@@ -60,7 +60,7 @@ Game* newGame();
 myTexture* loadTextures();
 
 // pone texturas de las piezas en su posición correspondiente según matriz de tablero
-void drawPieces(int board[8][8], myTexture* t);
+void drawPieces(int board[8][8], myTexture* t, Game* g, Player* p);
 
 // revisa quien gana -1 negro, 1 blanco
 int checkWin(int board[8][8]);

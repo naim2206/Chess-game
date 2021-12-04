@@ -35,21 +35,19 @@ int main()
     {
         BeginDrawing();
         if (whoWon == 0)
-        {
             // nadie ha ganado
-            drawBoard();
-            drawPieces(board_pieces, t);
-        }
+            makeMove(g, p, board_pieces);
 
+
+        drawBoard();
+        drawPieces(board_pieces, t, g, p);
         coronacion(board_pieces);
-
         //falta revisar lo de los turnos
-        makeMove(g, p, board_pieces);
 
         // pa debuggear
         //char pr[10];
         //itoa(whoWon, pr, 10);
-        //if ((IsMouseButtonDown(MOUSE_RIGHT_BUTTON)))
+        //if ((IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)))
         //    DrawText(pr, 10, 10, 20, BLUE);
         // hasta aqui
 
