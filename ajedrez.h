@@ -23,6 +23,7 @@ typedef struct game
     int turn;
     int band;
     int primeraVezPeones[2][8];
+    int primeraVezEnroque[2][3];
 } Game;
 
 
@@ -67,5 +68,7 @@ int checkWin(int board[8][8]);
 // muestra texto del jugador ganador
 void showWinner(int whoWon);
 
+// revisa si algún peon llegó a la última fila y lo corona a reina
+void coronacion(int board[8][8]);
 
 #endif
