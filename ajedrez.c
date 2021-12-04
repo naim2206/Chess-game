@@ -25,28 +25,50 @@ myTexture* loadTextures()
 
 
 // pone texturas de las piezas en su posición correspondiente según matriz de tablero
-void drawPieces(int board[8][8], myTexture* t)
+void drawPieces(int board[8][8], myTexture* t, Game* g, Player* p)
 {
     for (int j = 0; j < SCREAN_WIDTH / REC_SIZE; j++)
         for (int i = 0; i < SCREAN_HEIGHT / REC_SIZE; i++)
         {
-            switch (board[j][i])
+            // dibuja todo menos la seleccionada
+            if ((g->band != 1 && g->band != 2) || j != p->whatToMoveY || i != p->whatToMoveX)
             {
-            case 1: DrawTexture(t->texturepb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //peon blanco
-            case 2: DrawTexture(t->textureab, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //alfil blanco
-            case 3: DrawTexture(t->texturecb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //caballo blanco
-            case 5: DrawTexture(t->texturetb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //torre blanco
-            case 9: DrawTexture(t->texturedb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //dama blanco
-            case -1: DrawTexture(t->texturepn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //peon negro
-            case -2: DrawTexture(t->texturean, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //alfil negro
-            case -3: DrawTexture(t->texturecn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //caballo negro
-            case -5: DrawTexture(t->texturetn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //torre negro
-            case -9: DrawTexture(t->texturedn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //dama negro
-            case 100: DrawTexture(t->texturerb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //rey blanco
-            case -100: DrawTexture(t->texturern, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //rey negro
+                switch (board[j][i])
+                {
+                case 1: DrawTexture(t->texturepb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //peon blanco
+                case 2: DrawTexture(t->textureab, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //alfil blanco
+                case 3: DrawTexture(t->texturecb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //caballo blanco
+                case 5: DrawTexture(t->texturetb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //torre blanco
+                case 9: DrawTexture(t->texturedb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //dama blanco
+                case -1: DrawTexture(t->texturepn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //peon negro
+                case -2: DrawTexture(t->texturean, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //alfil negro
+                case -3: DrawTexture(t->texturecn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //caballo negro
+                case -5: DrawTexture(t->texturetn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //torre negro
+                case -9: DrawTexture(t->texturedn, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //dama negro
+                case 100: DrawTexture(t->texturerb, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE);break; //rey blanco
+                case -100: DrawTexture(t->texturern, i * REC_SIZE - 5, j * REC_SIZE - 5, RAYWHITE); break; //rey negro
+                }
             }
         }
-
+    // la pieza que se está moviendo
+    if (g->band == 1)
+    {
+        switch (board[p->whatToMoveY][p->whatToMoveX])
+        {
+        case 1: DrawTexture(t->texturepb, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE); break; //peon blanco
+        case 2: DrawTexture(t->textureab, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE); break; //alfil blanco
+        case 3: DrawTexture(t->texturecb, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE);break; //caballo blanco
+        case 5: DrawTexture(t->texturetb, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE);break; //torre blanco
+        case 9: DrawTexture(t->texturedb, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE); break; //dama blanco
+        case -1: DrawTexture(t->texturepn, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE); break; //peon negro
+        case -2: DrawTexture(t->texturean, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE); break; //alfil negro
+        case -3: DrawTexture(t->texturecn, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE); break; //caballo negro
+        case -5: DrawTexture(t->texturetn, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE); break; //torre negro
+        case -9: DrawTexture(t->texturedn, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE); break; //dama negro
+        case 100: DrawTexture(t->texturerb, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE);break; //rey blanco
+        case -100: DrawTexture(t->texturern, GetMouseX() - 30, GetMouseY() - 30, RAYWHITE); break; //rey negro
+        }
+    }
 }
 
 
@@ -98,7 +120,7 @@ int whatMove(Player* p, int board[8][8])
 // obtiene la posición en la matriz de tablero del lugar al que se va a mover la pieza
 int whereMove(Player* p)
 {
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    if (IsMouseButtonUp(MOUSE_LEFT_BUTTON))
     {
         // guardar datos en estructura player
         p->whereToMoveX = GetMouseX() / REC_SIZE;
@@ -570,8 +592,8 @@ int changePeaces(int board[8][8], Player* p, Game* g)
             return 0;
         }
 
-        // regresa a selección de lugar al que moverse
-        return 1;
+        // no se realiza el movimiento
+        return 0;
     }
     if (possibleMovePerPiece(board, p, what, g) == 2)
     {
@@ -643,6 +665,7 @@ void makeMove(Game* g, Player* p, int board_pieces[8][8])
 // revisa quien gana -1 negro, 1 blanco, 0 nadie
 int checkWin(int board[8][8])
 {
+    // cambiar a que sea cuando hay jaque mate
     int blackWin = -1;
     int whiteWin = 1;
     // itera a lo largo del tablero
