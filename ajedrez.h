@@ -51,4 +51,6 @@ void drawButtons();
 // revisar si se presiona el boton de reiniciar juego
 int startNewGame();
 
+void checkSaveLoad(Game* g, int board[8][8]);
+
 #endif

@@ -11,3 +11,4 @@ cmake-build-debug/*
 # Local History for Visual Studio Code
 .history/
 main.exe
+loadedGame.txt

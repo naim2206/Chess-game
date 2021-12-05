@@ -47,6 +47,8 @@ int main()
             return 0;
         }
 
+        checkSaveLoad(g, board_pieces);
+
         drawBoard();
         drawPieces(board_pieces, t, g, p);
         drawButtons();
