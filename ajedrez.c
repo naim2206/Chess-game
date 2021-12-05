@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "raylib.h"
 #include <string.h>
+#include <stdio.h>
 
 struct player
 {
@@ -433,9 +434,9 @@ int revisarMovRey(Player* p, Game* g, int board[8][8])
             if (diffMovY <= 1)
             {
                 // ya no es la primera vez
-                if ((colori == 1 && board[0][4] == -100)
-                    || (colori == 0 && board[7][4] == 100))
-                    g->primeraVezEnroque[colori][1] = 0;
+                //if ((colori == 1 && board[0][4] == -100)
+                 //   || (colori == 0 && board[7][4] == 100))
+                g->primeraVezEnroque[colori][1] = 0;
                 // se puede realizar el movimiento
                 return 1;
             }
@@ -446,9 +447,9 @@ int revisarMovRey(Player* p, Game* g, int board[8][8])
             // se mueve maximo 1 en x
             if (diffMovX <= 1)
             {
-                if ((colori == 1 && board[0][4] == -100)
-                    || (colori == 0 && board[7][4] == 100))
-                    g->primeraVezEnroque[colori][1] = 0;
+                //if ((colori == 1 && board[0][4] == -100)
+                    //|| (colori == 0 && board[7][4] == 100))
+                g->primeraVezEnroque[colori][1] = 0;
                 // se puede realizar el movimiento
                 return 1;
             }
@@ -686,15 +687,19 @@ int changePeaces(int board[8][8], Player* p, Game* g)
 // permite seleccionar posiciones de movimiento y realizar movimiento
 void makeMove(Game* g, Player* p, int board_pieces[8][8])
 {
-    if (g->band == 0)
-        // selección de pieza a mover
-        g->band = whatMove(p, board_pieces);
-    else if (g->band == 1)
+    if (GetMouseX() < BOARD_WIDTH)
+    {
+        if (g->band == 0)
+            // selección de pieza a mover
+            g->band = whatMove(p, board_pieces);
+    }
+    if (g->band == 1)
         // selección de lugar a moverse
         g->band = whereMove(p);
     else if (g->band == 2)
         // realizar movimiento
         g->band = changePeaces(board_pieces, p, g);
+
 }
 
 // revisa quien gana -1 negro, 1 blanco, 0 nadie
@@ -756,15 +761,17 @@ void coronacion(int board[8][8])
 // dibuja botones de la derecha
 void drawButtons()
 {
-    DrawRectangle(BOARD_WIDTH + 10, SCREAN_HEIGHT / 7, 80, SCREAN_HEIGHT / 7, DARKGRAY);
-    DrawRectangle(BOARD_WIDTH + 10, 3 * SCREAN_HEIGHT / 7, 80, SCREAN_HEIGHT / 7, DARKGRAY);
-    DrawRectangle(BOARD_WIDTH + 10, 5 * SCREAN_HEIGHT / 7, 80, SCREAN_HEIGHT / 7, DARKGRAY);
+    DrawRectangle(BOARD_WIDTH + 10, SCREAN_HEIGHT / 9, 80, SCREAN_HEIGHT / 9, DARKGRAY);
+    DrawRectangle(BOARD_WIDTH + 10, 3 * SCREAN_HEIGHT / 9, 80, SCREAN_HEIGHT / 9, DARKGRAY);
+    DrawRectangle(BOARD_WIDTH + 10, 5 * SCREAN_HEIGHT / 9, 80, SCREAN_HEIGHT / 9, DARKGRAY);
+    DrawRectangle(BOARD_WIDTH + 10, 7 * SCREAN_HEIGHT / 9, 80, SCREAN_HEIGHT / 9, DARKGRAY);
 
     DrawLine(BOARD_WIDTH, 0, BOARD_WIDTH + 1, SCREAN_HEIGHT, BLACK);
 
-    DrawText("New Game", BOARD_WIDTH + 15, SCREAN_HEIGHT / 7 + 10, 13, WHITE);
-    DrawText("Save Game", BOARD_WIDTH + 15, 3 * SCREAN_HEIGHT / 7 + 10, 13, WHITE);
-    DrawText("Load Game", BOARD_WIDTH + 15, 5 * SCREAN_HEIGHT / 7 + 10, 13, WHITE);
+    DrawText("New Game", BOARD_WIDTH + 15, SCREAN_HEIGHT / 9 + 10, 13, WHITE);
+    DrawText("Save Game", BOARD_WIDTH + 15, 3 * SCREAN_HEIGHT / 9 + 10, 13, WHITE);
+    DrawText("Load Game", BOARD_WIDTH + 15, 5 * SCREAN_HEIGHT / 9 + 10, 13, WHITE);
+    DrawText("Undo", BOARD_WIDTH + 15, 7 * SCREAN_HEIGHT / 9 + 10, 13, WHITE);
 }
 
 // revisar si se presiona el boton de reiniciar juego
@@ -772,9 +779,51 @@ int startNewGame()
 {
     int x = GetMouseX(), y = GetMouseY();
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-        if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > SCREAN_HEIGHT / 7 && y < 2 * SCREAN_HEIGHT / 7)
+        if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > SCREAN_HEIGHT / 9 && y < 2 * SCREAN_HEIGHT / 9)
         {
             return 1;
         }
     return 0;
 }
+
+void saveGame(Game* g, int board[8][8])
+{
+    FILE* f = fopen("loadedGame.txt", "wb");
+    fwrite(g, sizeof(Game), 1, f);
+    fwrite(board, sizeof(int) * 64, 1, f);
+    fclose(f);
+}
+
+void loadGame(Game* g, int board[8][8])
+{
+    FILE* f = fopen("loadedGame.txt", "rb");
+    fread(g, sizeof(Game), 1, f);
+    fread(board, sizeof(int) * 64, 1, f);
+    fclose(f);
+}
+
+void checkSaveLoad(Game* g, int board[8][8])
+{
+    int x = GetMouseX(), y = GetMouseY();
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+        if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > 3 * SCREAN_HEIGHT / 9 && y < 4 * SCREAN_HEIGHT / 9)
+        {
+            saveGame(g, board);
+        }
+        if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > 5 * SCREAN_HEIGHT / 9 && y < 6 * SCREAN_HEIGHT / 9)
+        {
+            loadGame(g, board);
+        }
+        if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > 7 * SCREAN_HEIGHT / 9 && y < 8 * SCREAN_HEIGHT / 9)
+        {
+            // goBack(g, board);
+        }
+    }
+}
+
+/*void goBack(Game* g, int board[8][8])
+{
+
+}
+*/
