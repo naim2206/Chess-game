@@ -38,9 +38,18 @@ int main()
             // nadie ha ganado
             makeMove(g, p, board_pieces);
 
+        if (startNewGame() == 1)
+        {
+            //reiniciar juego
+            EndDrawing();
+            CloseWindow();
+            main();
+            return 0;
+        }
 
         drawBoard();
         drawPieces(board_pieces, t, g, p);
+        drawButtons();
         coronacion(board_pieces);
         //falta revisar lo de los turnos
 
@@ -51,14 +60,7 @@ int main()
         //    DrawText(pr, 10, 10, 20, BLUE);
         // hasta aqui
 
-        if ((IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)))
-        {
-            //reiniciar juego, luego cambiar a un boton
-            EndDrawing();
-            CloseWindow();
-            main();
-            return 0;
-        }
+        startNewGame();
 
         whoWon = checkWin(board_pieces);
         if (whoWon != 0)

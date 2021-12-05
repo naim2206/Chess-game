@@ -3,6 +3,41 @@
 #include "raylib.h"
 #include <string.h>
 
+struct player
+{
+    int whereToMoveX;
+    int whereToMoveY;
+    int whatToMoveX;
+    int whatToMoveY;
+};
+
+struct game
+{
+    // -1 negro, 1 blanco
+    int turn;
+    int band;
+    int primeraVezPeones[2][8];
+    int primeraVezEnroque[2][3];
+};
+
+
+struct mytextures
+{
+    Texture2D texturepn;
+    Texture2D texturepb;
+    Texture2D texturean;
+    Texture2D textureab;
+    Texture2D texturecn;
+    Texture2D texturecb;
+    Texture2D texturetn;
+    Texture2D texturetb;
+    Texture2D texturedn;
+    Texture2D texturedb;
+    Texture2D texturern;
+    Texture2D texturerb;
+};
+
+
 // carga texturas a partir de imágenes de las piezas
 myTexture* loadTextures()
 {
@@ -79,7 +114,7 @@ void drawBoard()
     //fondo blanco
     ClearBackground(RAYWHITE);
     //pone cuadros negros en columnas impares con filas pares
-    for (int i = 1; i < SCREAN_WIDTH / REC_SIZE; i += 2)
+    for (int i = 1; i < BOARD_WIDTH / REC_SIZE; i += 2)
     {
         for (int j = 0; j < SCREAN_HEIGHT / REC_SIZE; j += 2)
         {
@@ -87,7 +122,7 @@ void drawBoard()
         }
     }
     // pone cuadros negros en columnas pares con filas impares
-    for (int i = 0; i < SCREAN_WIDTH / REC_SIZE; i += 2)
+    for (int i = 0; i < BOARD_WIDTH / REC_SIZE; i += 2)
     {
         for (int j = 1; j < SCREAN_HEIGHT / REC_SIZE; j += 2)
         {
@@ -716,4 +751,30 @@ void coronacion(int board[8][8])
         if (board[7][i] == -1)
             board[7][i] = -9;
     }
+}
+
+// dibuja botones de la derecha
+void drawButtons()
+{
+    DrawRectangle(BOARD_WIDTH + 10, SCREAN_HEIGHT / 7, 80, SCREAN_HEIGHT / 7, DARKGRAY);
+    DrawRectangle(BOARD_WIDTH + 10, 3 * SCREAN_HEIGHT / 7, 80, SCREAN_HEIGHT / 7, DARKGRAY);
+    DrawRectangle(BOARD_WIDTH + 10, 5 * SCREAN_HEIGHT / 7, 80, SCREAN_HEIGHT / 7, DARKGRAY);
+
+    DrawLine(BOARD_WIDTH, 0, BOARD_WIDTH + 1, SCREAN_HEIGHT, BLACK);
+
+    DrawText("New Game", BOARD_WIDTH + 15, SCREAN_HEIGHT / 7 + 10, 13, WHITE);
+    DrawText("Save Game", BOARD_WIDTH + 15, 3 * SCREAN_HEIGHT / 7 + 10, 13, WHITE);
+    DrawText("Load Game", BOARD_WIDTH + 15, 5 * SCREAN_HEIGHT / 7 + 10, 13, WHITE);
+}
+
+// revisar si se presiona el boton de reiniciar juego
+int startNewGame()
+{
+    int x = GetMouseX(), y = GetMouseY();
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > SCREAN_HEIGHT / 7 && y < 2 * SCREAN_HEIGHT / 7)
+        {
+            return 1;
+        }
+    return 0;
 }
