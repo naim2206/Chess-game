@@ -29,6 +29,7 @@ int main()
     Player* p = newPlayer();
     Game* g = newGame();
     myTexture* t = loadTextures();
+    Stack* s = create(board_pieces, g);
     int whoWon = 0;
 
     while (!WindowShouldClose())
@@ -36,7 +37,7 @@ int main()
         BeginDrawing();
         if (whoWon == 0)
             // nadie ha ganado
-            makeMove(g, p, board_pieces);
+            makeMove(g, p, board_pieces, s);
 
         if (startNewGame() == 1)
         {
@@ -47,13 +48,12 @@ int main()
             return 0;
         }
 
-        checkSaveLoad(g, board_pieces);
-
+        checkSaveLoad(g, board_pieces, s);
         drawBoard();
-        drawPieces(board_pieces, t, g, p);
+        iluminar(board_pieces);
         drawButtons();
+        drawPieces(board_pieces, t, g, p);
         coronacion(board_pieces);
-        //falta revisar lo de los turnos
 
         // pa debuggear
         //char pr[10];
