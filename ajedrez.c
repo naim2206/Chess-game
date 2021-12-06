@@ -47,7 +47,11 @@ struct stack
 struct node
 {
     int board[8][8];
-    Game* g;
+    //Game* g;
+    int turn;
+    int band;
+    int primeraVezPeones[2][8];
+    int primeraVezEnroque[2][3];
     struct node* prior;
 };
 typedef struct node Node;
@@ -64,7 +68,16 @@ void push(Stack* stack, int board_p[8][8], Game* g)
         }
     }
 
-    node->g = g;
+    node->band = g->band;
+    node->turn = g->turn;
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 8; j++)
+            node->primeraVezPeones[i][j] = g->primeraVezPeones[i][j];
+
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 3; j++)
+            node->primeraVezEnroque[i][j] = g->primeraVezEnroque[i][j];
+
     node->prior = stack->top;
     stack->top = node;
 
@@ -716,6 +729,9 @@ int changePeaces(int board[8][8], Player* p, Game* g, Stack* s)
                     board[0][7] = 0;
                     board[0][5] = -5;
                     board[0][6] = -100;
+                    g->turn *= -1;
+                    // guardar en stack
+                    push(s, board, g);
                 }
                 // izquierda
                 if (p->whereToMoveX == 2)
@@ -724,6 +740,9 @@ int changePeaces(int board[8][8], Player* p, Game* g, Stack* s)
                     board[0][4] = 0;
                     board[0][3] = -5;
                     board[0][2] = -100;
+                    g->turn *= -1;
+                    // guardar en stack
+                    push(s, board, g);
                 }
             }
             // blanco
@@ -736,6 +755,9 @@ int changePeaces(int board[8][8], Player* p, Game* g, Stack* s)
                     board[7][7] = 0;
                     board[7][5] = 5;
                     board[7][6] = 100;
+                    g->turn *= -1;
+                    // guardar en stack
+                    push(s, board, g);
                 }
                 // izquierda
                 if (p->whereToMoveX == 2)
@@ -744,53 +766,21 @@ int changePeaces(int board[8][8], Player* p, Game* g, Stack* s)
                     board[7][4] = 0;
                     board[7][3] = 5;
                     board[7][2] = 100;
+                    g->turn *= -1;
+                    // guardar en stack
+                    push(s, board, g);
                 }
             }
 
         }
-        // regresa a selección de pieza a mover
+        // regresa a selección de pieza a move// regresa a selección de pieza a mover
+
         return 0;
     }
     return 0;
 }
 
-// permite seleccionar posiciones de movimiento y realizar movimiento
-void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s)
-{
-    if (GetMouseX() < BOARD_WIDTH)
-    {
-        if (g->band == 0)
-            // selección de pieza a mover
-            g->band = whatMove(p, board_pieces);
-    }
-    if (g->band == 1)
-        // selección de lugar a moverse
-        g->band = whereMove(p);
-    else if (g->band == 2)
-        // realizar movimiento
-        g->band = changePeaces(board_pieces, p, g, s);
 
-}
-
-// revisa quien gana -1 negro, 1 blanco, 0 nadie
-int checkWin(int board[8][8])
-{
-    // cambiar a que sea cuando hay jaque mate
-    int blackWin = -1;
-    int whiteWin = 1;
-    // itera a lo largo del tablero
-    for (int i = 0; i < 8; i++)
-        for (int j = 0; j < 8; j++)
-        {
-            if (board[i][j] == 100)
-                // hay rey blano, no gana el negro
-                blackWin = 0;
-            if (board[i][j] == -100)
-                // hay rey negro, no gana el blanco
-                whiteWin = 0;
-        }
-    return blackWin == -1 ? blackWin : whiteWin == 1 ? whiteWin : 0;
-}
 
 // muestra texto del jugador ganador
 void showWinner(int whoWon)
@@ -864,12 +854,13 @@ void saveGame(Game* g, int board[8][8])
     fclose(f);
 }
 
-void loadGame(Game* g, int board[8][8])
+void loadGame(Game* g, int board[8][8], Stack* s)
 {
     FILE* f = fopen("loadedGame.txt", "rb");
     fread(g, sizeof(Game), 1, f);
     fread(board, sizeof(int) * 64, 1, f);
     fclose(f);
+    push(s, board, g);
 }
 
 
@@ -879,18 +870,21 @@ void goBack(Game* g, int board[8][8], Stack* s)
     if (s->top->prior != NULL)
     {
         pop(s);
+
         if (s->top != NULL)
         {
-            g = s->top->g;
+            g->turn = s->top->turn;
+            for (int i = 0; i < 2; i++)
+                for (int j = 0; j < 8; j++)
+                    g->primeraVezPeones[i][j] = s->top->primeraVezPeones[i][j];
+
+            for (int i = 0; i < 2; i++)
+                for (int j = 0; j < 3; j++)
+                    g->primeraVezEnroque[i][j] = s->top->primeraVezEnroque[i][j];
 
             for (int i = 0; i < 8; i++)
-            {
                 for (int j = 0; j < 8; j++)
-                {
                     board[i][j] = s->top->board[i][j];
-                }
-            }
-
         }
     }
 }
@@ -906,11 +900,426 @@ void checkSaveLoad(Game* g, int board[8][8], Stack* s)
         }
         if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > 5 * SCREAN_HEIGHT / 9 && y < 6 * SCREAN_HEIGHT / 9)
         {
-            loadGame(g, board);
+            loadGame(g, board, s);
         }
         if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > 7 * SCREAN_HEIGHT / 9 && y < 8 * SCREAN_HEIGHT / 9)
         {
             goBack(g, board, s);
         }
     }
+}
+
+int getWhiteKingi(int board[8][8])
+{
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (board[i][j] == 100)
+                return i;
+    return 0;
+}
+
+int getWhiteKingj(int board[8][8])
+{
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (board[i][j] == 100)
+                return j;
+    return 0;
+}
+
+int getBlackKingi(int board[8][8])
+{
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (board[i][j] == -100)
+                return i;
+    return 0;
+}
+
+int getBlackKingj(int board[8][8])
+{
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+            if (board[i][j] == -100)
+                return j;
+    return 0;
+}
+
+
+
+int revisarJaqueNegro(int board[8][8], int in, int jn)
+{
+    int tempi, tempj;
+
+    // arriba
+    tempi = in + 1;
+    while (board[tempi][jn] >= 0 && tempi < 8)
+    {
+        if (board[tempi][jn] == 5 || board[tempi][jn] == 9)
+            return 1;
+        else if (board[tempi][jn] != 0)
+            break;
+        tempi++;
+    }
+    // abajo
+    tempi = in - 1;
+    while (board[tempi][jn] >= 0 && tempi >= 0)
+    {
+        if (board[tempi][jn] == 5 || board[tempi][jn] == 9)
+            return 1;
+        else if (board[tempi][jn] != 0)
+            break;
+        tempi--;
+    }
+    // izquierda
+    tempj = jn - 1;
+    while (board[in][tempj] >= 0 && tempj >= 0)
+    {
+        if (board[in][tempj] == 5 || board[in][tempj] == 9)
+            return 1;
+        else if (board[in][tempj] != 0)
+            break;
+        tempj--;
+    }
+    // derecha
+    tempj = jn + 1;
+    while (board[in][tempj] >= 0 && tempj < 8)
+    {
+        if (board[in][tempj] == 5 || board[in][tempj] == 9)
+            return 1;
+        else if (board[in][tempj] != 0)
+            break;
+        tempj++;
+    }
+    // arriba/derecha
+    tempj = jn + 1;
+    tempi = in + 1;
+    while (board[tempi][tempj] >= 0 && tempi < 8 && tempj < 8)
+    {
+        if (board[tempi][tempj] == 2 || board[tempi][tempj] == 9)
+            return 1;
+        else if (board[tempi][tempj] != 0)
+            break;
+        tempj++;
+        tempi++;
+    }
+    // arrina/izquierda
+    tempj = jn - 1;
+    tempi = in + 1;
+    while (board[tempi][tempj] >= 0 && tempi < 8 && tempj >= 0)
+    {
+        if (board[tempi][tempj] == 2 || board[tempi][tempj] == 9)
+            return 1;
+        else if (board[tempi][tempj] != 0)
+            break;
+        tempj--;
+        tempi++;
+    }
+    // abajo/derecha
+    tempj = jn + 1;
+    tempi = in - 1;
+    while (board[tempi][tempj] >= 0 && tempj < 8 && tempi >= 0)
+    {
+        if (board[tempi][tempj] == 2 || board[tempi][tempj] == 9)
+            return 1;
+        else if (board[tempi][tempj] != 0)
+            break;
+        tempj++;
+        tempi--;
+    }
+    // abajo/izquierda
+    tempj = jn - 1;
+    tempi = in - 1;
+    while (board[tempi][tempj] >= 0 && tempj >= 0 && tempj >= 0)
+    {
+        if (board[tempi][tempj] == 2 || board[tempi][tempj] == 9)
+            return 1;
+        else if (board[tempi][tempj] != 0)
+            break;
+
+        tempj--;
+        tempi--;
+    }
+    // rey
+    if (board[in + 1][jn] == 100 || board[in - 1][jn] == 100 || board[in + 1][jn + 1] == 100 || board[in + 1][jn - 1] == 100 || board[in - 1][jn - 1] == 100 || board[in - 1][jn + 1] == 100 || board[in][jn + 1] == 100 || board[in][jn - 1] == 100)
+        return 1;
+
+    // peon
+    if (board[in + 1][jn + 1] == 1 || board[in + 1][jn - 1] == 1)
+        return 1;
+    // caballo
+    if (board[in - 2][jn - 1] == 3 || board[in - 2][jn + 1] == 3 || board[in + 2][jn - 1] == 3 || board[in + 2][jn + 1] == 3 || board[in - 1][jn - 2] == 3 || board[in - 1][jn + 2] == 3 || board[in + 1][jn - 2] == 3 || board[in + 1][jn + 2] == 3)
+        return 1;
+
+
+    return 0;
+}
+
+
+int revisarJaqueBlanco(int board[8][8], int ib, int jb)
+{
+    int tempi, tempj;
+    // arriba
+    tempi = ib + 1;
+    while (board[tempi][jb] <= 0 && tempi < 8)
+    {
+        if (board[tempi][jb] == -5 || board[tempi][jb] == -9)
+            return 1;
+        else if (board[tempi][jb] != 0)
+            break;
+        tempi++;
+    }
+    // abajo
+    tempi = ib - 1;
+    while (board[tempi][jb] <= 0 && tempi >= 0)
+    {
+        if (board[tempi][jb] == -5 || board[tempi][jb] == -9)
+            return 1;
+        else if (board[tempi][jb] != 0)
+            break;
+        tempi--;
+    }
+    // izquierda
+    tempj = jb - 1;
+    while (board[ib][tempj] <= 0 && tempj >= 0)
+    {
+        if (board[ib][tempj] == -5 || board[ib][tempj] == -9)
+            return 1;
+        else if (board[ib][tempj] != 0)
+            break;
+        tempj--;
+    }
+    // derecha
+    tempj = jb + 1;
+    while (board[ib][tempj] <= 0 && tempj < 8)
+    {
+        if (board[ib][tempj] == -5 || board[ib][tempj] == -9)
+            return 1;
+        else if (board[ib][tempj] != 0)
+            break;
+        tempj++;
+    }
+    // arriba/derecha
+    tempj = jb + 1;
+    tempi = ib + 1;
+    while (board[tempi][tempj] <= 0 && tempi < 8 && tempj < 8)
+    {
+        if (board[tempi][tempj] == -2 || board[tempi][tempj] == -9)
+            return 1;
+        else if (board[tempi][tempj] != 0)
+            break;
+        tempj++;
+        tempi++;
+    }
+    // arriba/izquierda
+    tempj = jb - 1;
+    tempi = ib + 1;
+    while (board[tempi][tempj] <= 0 && tempi < 8 && tempj >= 0)
+    {
+        if (board[tempi][tempj] == -2 || board[tempi][tempj] == -9)
+            return 1;
+        else if (board[tempi][tempj] != 0)
+            break;
+        tempj--;
+        tempi++;
+    }
+    // abajo/derecha
+    tempj = jb + 1;
+    tempi = ib - 1;
+    while (board[tempi][tempj] <= 0 && tempj < 8 && tempi >= 0)
+    {
+        if (board[tempi][tempj] == -2 || board[tempi][tempj] == -9)
+            return 1;
+        else if (board[tempi][tempj] != 0)
+            break;
+        tempj++;
+        tempi--;
+    }
+    // abajo/izquierda
+    tempj = jb - 1;
+    tempi = ib - 1;
+    while (board[tempi][tempj] <= 0 && tempj >= 0 && tempj >= 0)
+    {
+        if (board[tempi][tempj] == -2 || board[tempi][tempj] == -9)
+            return 1;
+        else if (board[tempi][tempj] != 0)
+            break;
+
+        tempj--;
+        tempi--;
+    }
+    // rey
+    if (board[ib + 1][jb] == -100 || board[ib - 1][jb] == -100 || board[ib + 1][jb + 1] == -100 || board[ib + 1][jb - 1] == -100 || board[ib - 1][jb - 1] == -100 || board[ib - 1][jb + 1] == -100 || board[ib][jb + 1] == -100 || board[ib][jb - 1] == -100)
+        return 1;
+
+    // peon
+    if (board[ib - 1][jb + 1] == -1 || board[ib - 1][jb - 1] == -1)
+        return 1;
+    // caballo
+    if (board[ib - 2][jb - 1] == -3 || board[ib - 2][jb + 1] == -3 || board[ib + 2][jb - 1] == -3 || board[ib + 2][jb + 1] == -3 || board[ib - 1][jb - 2] == -3 || board[ib - 1][jb + 2] == -3 || board[ib + 1][jb - 2] == -3 || board[ib + 1][jb + 2] == -3)
+        return 1;
+
+    return 0;
+}
+
+int revisarUnJaqueChilo(int board[8][8])
+{
+    if (revisarJaqueBlanco(board, getWhiteKingi(board), getWhiteKingj(board)) == 1)
+        return 1;
+    if (revisarJaqueNegro(board, getBlackKingi(board), getBlackKingj(board)) == 1)
+        return 1;
+    return 0;
+}
+
+
+void drawJaque()
+{
+    DrawText("Jaque", 100, 175, 50, BLACK);
+}
+
+int revisarJaqueMateBlanco(int board[8][8])
+{
+    int ib = getWhiteKingi(board);
+    int jb = getWhiteKingj(board);
+
+    if (revisarJaqueBlanco(board, ib + 1, jb + 1) == 0 && board[ib + 1][jb + 1] <= 0)
+        return 0;
+    if (revisarJaqueBlanco(board, ib - 1, jb + 1) == 0 && board[ib - 1][jb + 1] <= 0)
+        return 0;
+    if (revisarJaqueBlanco(board, ib + 1, jb - 1) == 0 && board[ib + 1][jb - 1] <= 0)
+        return 0;
+    if (revisarJaqueBlanco(board, ib - 1, jb - 1) == 0 && board[ib - 1][jb - 1] <= 0)
+        return 0;
+    if (revisarJaqueBlanco(board, ib, jb + 1) == 0 && board[ib][jb + 1] <= 0)
+        return 0;
+    if (revisarJaqueBlanco(board, ib + 1, jb) == 0 && board[ib + 1][jb] <= 0)
+        return 0;
+    if (revisarJaqueBlanco(board, ib, jb - 1) == 0 && board[ib][jb - 1] <= 0)
+        return 0;
+    if (revisarJaqueBlanco(board, ib - 1, jb) == 0 && board[ib - 1][jb] <= 0)
+        return 0;
+
+    return 1;
+}
+
+int revisarJaqueMateNegro(int board[8][8])
+{
+    int jn = getBlackKingj(board);
+    int in = getBlackKingi(board);
+
+    if (revisarJaqueNegro(board, in + 1, jn + 1) == 0 && board[in + 1][jn + 1] >= 0)
+        return 0;
+    if (revisarJaqueNegro(board, in - 1, jn + 1) == 0 && board[in - 1][jn + 1] >= 0)
+        return 0;
+    if (revisarJaqueNegro(board, in + 1, jn - 1) == 0 && board[in + 1][jn - 1] >= 0)
+        return 0;
+    if (revisarJaqueNegro(board, in - 1, jn - 1) == 0 && board[in - 1][jn - 1] >= 0)
+        return 0;
+    if (revisarJaqueNegro(board, in, jn + 1) == 0 && board[in][jn + 1] >= 0)
+        return 0;
+    if (revisarJaqueNegro(board, in + 1, jn) == 0 && board[in + 1][jn] >= 0)
+        return 0;
+    if (revisarJaqueNegro(board, in, jn - 1) == 0 && board[in][jn - 1] >= 0)
+        return 0;
+    if (revisarJaqueNegro(board, in - 1, jn) == 0 && board[in - 1][jn] >= 0)
+        return 0;
+
+    return 1;
+}
+
+
+// revisa quien gana -1 negro, 1 blanco, 0 nadie
+int checkWin(int board[8][8])
+{
+    // cambiar a que sea cuando hay jaque mate
+    int blackWin = -1;
+    int whiteWin = 1;
+    if (revisarJaqueMateBlanco(board) == 1)
+        return blackWin;
+    if (revisarJaqueMateNegro(board) == 1)
+        return whiteWin;
+    return 0;
+}
+
+
+void freeVars(Game* g, Player* p, myTexture* t, Stack* s)
+{
+    free(p);
+    free(g);
+    free(t);
+    free(s);
+}
+
+
+int revisarAutoJaque(int board[8][8], Player* p)
+{
+    int what = board[p->whatToMoveY][p->whatToMoveX];
+    if (what == -100)
+    {
+        if (revisarJaqueNegro(board, p->whereToMoveY, p->whereToMoveX) == 1)
+        {
+            return 1;
+        }
+    }
+    if (what == 100)
+    {
+        if (revisarJaqueBlanco(board, p->whereToMoveY, p->whereToMoveX) == 1)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// permite seleccionar posiciones de movimiento y realizar movimiento
+void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s)
+{
+    if (GetMouseX() < BOARD_WIDTH)
+    {
+        if (g->band == 0)
+            // selección de pieza a mover
+            g->band = whatMove(p, board_pieces);
+    }
+    if (g->band == 1)
+        // selección de lugar a moverse
+        g->band = whereMove(p);
+    else if (g->band == 2)
+    {
+        // realizar movimiento
+
+        if (revisarAutoJaque(board_pieces, p) == 0)
+            g->band = changePeaces(board_pieces, p, g, s);
+        else
+            g->band = 0;
+    }
+
+}
+
+
+void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s)
+{
+    if (GetMouseX() < BOARD_WIDTH)
+    {
+        if (g->band == 0)
+            // selección de pieza a mover
+            g->band = whatMove(p, board_pieces);
+    }
+    if (board_pieces[p->whatToMoveY][p->whatToMoveX] == 100 || board_pieces[p->whatToMoveY][p->whatToMoveX] == -100)
+    {
+        if (g->band == 1)
+            // selección de lugar a moverse
+            g->band = whereMove(p);
+        else if (g->band == 2)
+        {
+            if (revisarAutoJaque(board_pieces, p) == 0)
+                g->band = changePeaces(board_pieces, p, g, s);
+            else
+                g->band = 0;
+        }
+    }
+    else
+    {
+        g->band = 0;
+    }
+
 }

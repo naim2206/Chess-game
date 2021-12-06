@@ -35,8 +35,8 @@ int main()
     while (!WindowShouldClose())
     {
         BeginDrawing();
-        if (whoWon == 0)
-            // nadie ha ganado
+        if (whoWon == 0 && revisarUnJaqueChilo(board_pieces) == 0)
+            // nadie ha ganado y no hay jaque
             makeMove(g, p, board_pieces, s);
 
         if (startNewGame() == 1)
@@ -55,6 +55,7 @@ int main()
         drawPieces(board_pieces, t, g, p);
         coronacion(board_pieces);
 
+
         // pa debuggear
         //char pr[10];
         //itoa(whoWon, pr, 10);
@@ -64,12 +65,28 @@ int main()
 
         startNewGame();
 
-        whoWon = checkWin(board_pieces);
-        if (whoWon != 0)
-            showWinner(whoWon);
+
+        if (revisarUnJaqueChilo(board_pieces))
+        {
+            drawJaque();
+            // mate?
+            whoWon = checkWin(board_pieces);
+            if (whoWon != 0)
+            {
+                showWinner(whoWon);
+            }
+            else
+            {
+                // solo mover el rey
+                makeMoveJaque(g, p, board_pieces, s);
+                // luego revisar que no se pueda poner en jaque a si mismo
+                //tapar
+            }
+        }
         EndDrawing();
     }
     CloseWindow();
+    freeVars(g, p, t, s);
 
     return 0;
 
