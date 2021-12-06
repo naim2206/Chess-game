@@ -38,6 +38,59 @@ struct mytextures
     Texture2D texturerb;
 };
 
+struct stack
+{
+    struct node* top;
+};
+
+
+struct node
+{
+    int board[8][8];
+    Game* g;
+    struct node* prior;
+};
+typedef struct node Node;
+
+
+void push(Stack* stack, int board_p[8][8], Game* g)
+{
+    Node* node = malloc(sizeof(Node));
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            node->board[i][j] = board_p[i][j];
+        }
+    }
+
+    node->g = g;
+    node->prior = stack->top;
+    stack->top = node;
+
+}
+
+Stack* create(int board[8][8], Game* g)
+{
+    Stack* stack = malloc(sizeof(Stack));
+    stack->top = NULL;
+    push(stack, board, g);
+    return stack;
+
+}
+
+void pop(Stack* stack)
+{
+
+    if (stack->top == NULL)
+        return;
+
+    Node* toPop = stack->top;
+    stack->top = toPop->prior;
+    free(toPop);
+
+}
+
 
 // carga texturas a partir de imágenes de las piezas
 myTexture* loadTextures()
@@ -132,6 +185,17 @@ void drawBoard()
     }
 
 }
+
+// iluminar cuadro en el que está el mouse
+void iluminar(int board[8][8])
+{
+    for (int i = 0; i < BOARD_WIDTH / REC_SIZE; i++)
+        for (int j = 0; j < SCREAN_HEIGHT / REC_SIZE; j++)
+            if (GetMouseX() / REC_SIZE == i && GetMouseY() / REC_SIZE == j)
+                if (board[j][i] != 0)
+                    DrawRectangle(i * REC_SIZE, j * REC_SIZE, REC_SIZE, REC_SIZE, YELLOW);
+}
+
 
 // obtiene la posición en la matriz de tablero de la pieza que se quiere mover
 int whatMove(Player* p, int board[8][8])
@@ -596,96 +660,102 @@ int possibleMovePerPiece(int board[8][8], Player* p, int what, Game* g)
     }
 }
 
-int changePeaces(int board[8][8], Player* p, Game* g)
+int changePeaces(int board[8][8], Player* p, Game* g, Stack* s)
 {
     // que hay en donde se quiere mover
     int where = board[p->whereToMoveY][p->whereToMoveX];
     // que se va a mover
     int what = board[p->whatToMoveY][p->whatToMoveX];
 
-
-    // el movimiento es valido
-    if (possibleMovePerPiece(board, p, what, g) == 1)
+    if ((what < 0 && g->turn == -1) || (what > 0 && g->turn == 1))
     {
-        if (where == 0)
+
+        // el movimiento es valido
+        if (possibleMovePerPiece(board, p, what, g) == 1)
         {
-            //va a un lugar vacío, se intercambia
-            int temp;
-            temp = what;
-            board[p->whatToMoveY][p->whatToMoveX] = where;
-            board[p->whereToMoveY][p->whereToMoveX] = temp;
-            // regresa a selección de pieza a mover
+            if (where == 0)
+            {
+                //va a un lugar vacío, se intercambia
+                int temp;
+                temp = what;
+                board[p->whatToMoveY][p->whatToMoveX] = where;
+                board[p->whereToMoveY][p->whereToMoveX] = temp;
+                g->turn *= -1;
+                // guardar en stack
+                push(s, board, g);
+                // regresa a selección de pieza a mover
+                return 0;
+            }
+
+            // para no vas contra tu propio equipo
+            if ((where > 0 && what < 0) || (where < 0 && what > 0))
+            {
+                // matar enemigo
+                board[p->whereToMoveY][p->whereToMoveX] = what;
+                board[p->whatToMoveY][p->whatToMoveX] = 0;
+                // regresa a selección de pieza a mover
+                g->turn *= -1;
+                // guardar en stack
+                push(s, board, g);
+                return 0;
+            }
+
+            // no se realiza el movimiento
             return 0;
         }
-
-        // para no vas contra tu propio equipo
-        if ((where > 0 && what < 0) || (where < 0 && what > 0))
+        if (possibleMovePerPiece(board, p, what, g) == 2)
         {
-            // matar enemigo
-            board[p->whereToMoveY][p->whereToMoveX] = what;
-            board[p->whatToMoveY][p->whatToMoveX] = 0;
-            // regresa a selección de pieza a mover
-            return 0;
-        }
+            // enroque
+            // negro
+            if (what < 0)
+            {
+                // derecha
+                if (p->whereToMoveX == 6)
+                {
+                    board[0][4] = 0;
+                    board[0][7] = 0;
+                    board[0][5] = -5;
+                    board[0][6] = -100;
+                }
+                // izquierda
+                if (p->whereToMoveX == 2)
+                {
+                    board[0][0] = 0;
+                    board[0][4] = 0;
+                    board[0][3] = -5;
+                    board[0][2] = -100;
+                }
+            }
+            // blanco
+            if (what > 0)
+            {
+                // derecha
+                if (p->whereToMoveX == 6)
+                {
+                    board[7][4] = 0;
+                    board[7][7] = 0;
+                    board[7][5] = 5;
+                    board[7][6] = 100;
+                }
+                // izquierda
+                if (p->whereToMoveX == 2)
+                {
+                    board[7][0] = 0;
+                    board[7][4] = 0;
+                    board[7][3] = 5;
+                    board[7][2] = 100;
+                }
+            }
 
-        // no se realiza el movimiento
+        }
+        // regresa a selección de pieza a mover
         return 0;
     }
-    if (possibleMovePerPiece(board, p, what, g) == 2)
-    {
-        // enroque
-        // negro
-        if (what < 0)
-        {
-            // derecha
-            if (p->whereToMoveX == 6)
-            {
-                board[0][4] = 0;
-                board[0][7] = 0;
-                board[0][5] = -5;
-                board[0][6] = -100;
-                return 0;
-            }
-            // izquierda
-            if (p->whereToMoveX == 2)
-            {
-                board[0][0] = 0;
-                board[0][4] = 0;
-                board[0][3] = -5;
-                board[0][2] = -100;
-                return 0;
-            }
-        }
-        // blanco
-        if (what > 0)
-        {
-            // derecha
-            if (p->whereToMoveX == 6)
-            {
-                board[7][4] = 0;
-                board[7][7] = 0;
-                board[7][5] = 5;
-                board[7][6] = 100;
-                return 0;
-            }
-            // izquierda
-            if (p->whereToMoveX == 2)
-            {
-                board[7][0] = 0;
-                board[7][4] = 0;
-                board[7][3] = 5;
-                board[7][2] = 100;
-                return 0;
-            }
-        }
-
-    }
-    // regresa a selección de pieza a mover
     return 0;
 }
 
 // permite seleccionar posiciones de movimiento y realizar movimiento
-void makeMove(Game* g, Player* p, int board_pieces[8][8])
+void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s)
 {
     if (GetMouseX() < BOARD_WIDTH)
     {
@@ -698,7 +768,7 @@ void makeMove(Game* g, Player* p, int board_pieces[8][8])
         g->band = whereMove(p);
     else if (g->band == 2)
         // realizar movimiento
-        g->band = changePeaces(board_pieces, p, g);
+        g->band = changePeaces(board_pieces, p, g, s);
 
 }
 
@@ -802,7 +872,30 @@ void loadGame(Game* g, int board[8][8])
     fclose(f);
 }
 
-void checkSaveLoad(Game* g, int board[8][8])
+
+
+void goBack(Game* g, int board[8][8], Stack* s)
+{
+    if (s->top->prior != NULL)
+    {
+        pop(s);
+        if (s->top != NULL)
+        {
+            g = s->top->g;
+
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    board[i][j] = s->top->board[i][j];
+                }
+            }
+
+        }
+    }
+}
+
+void checkSaveLoad(Game* g, int board[8][8], Stack* s)
 {
     int x = GetMouseX(), y = GetMouseY();
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
@@ -817,13 +910,7 @@ void checkSaveLoad(Game* g, int board[8][8])
         }
         if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > 7 * SCREAN_HEIGHT / 9 && y < 8 * SCREAN_HEIGHT / 9)
         {
-            // goBack(g, board);
+            goBack(g, board, s);
         }
     }
 }
-
-/*void goBack(Game* g, int board[8][8])
-{
-
-}
-*/

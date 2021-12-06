@@ -18,6 +18,8 @@ typedef struct game Game;
 // estructura con texturas de las imágenes por pieza
 typedef struct mytextures myTexture;
 
+typedef struct stack Stack;
+
 // realiza la estructura del tablero (cuadros blancos y negros)
 void drawBoard();
 
@@ -25,8 +27,7 @@ void drawBoard();
 Player* newPlayer();
 
 // permite seleccionar posiciones de movimiento y realizar movimiento
-void makeMove(Game* g, Player* p, int board_pieces[8][8]);
-
+void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s);
 // datos iniciales a estructura game
 Game* newGame();
 
@@ -51,6 +52,11 @@ void drawButtons();
 // revisar si se presiona el boton de reiniciar juego
 int startNewGame();
 
-void checkSaveLoad(Game* g, int board[8][8]);
+void checkSaveLoad(Game* g, int board[8][8], Stack* s);
+
+// iluminar cuadro en el que está el mouse
+void iluminar(int board[8][8]);
+
+Stack* create(int board[8][8], Game* g);
 
 #endif
