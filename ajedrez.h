@@ -2,68 +2,61 @@
 #define AJEDREZ_H
 
 #define SCREAN_HEIGHT 400
-#define SCREAN_WIDTH 400
+#define SCREAN_WIDTH 500
 #define REC_SIZE 50
+#define BOARD_WIDTH 400
 
 #include "raylib.h"
 
 
-typedef struct player
-{
-    int whereToMoveX;
-    int whereToMoveY;
-    int whatToMoveX;
-    int whatToMoveY;
-    int primeraVezPeones[2][8];
-} Player;
+// estructura con movimientos del jugador
+typedef struct player Player;
 
-typedef struct game
-{
-    // -1 negro, 1 blanco
-    int turn;
-    int band;
-} Game;
+// estructura con información de juego (hay que guardar)
+typedef struct game Game;
 
-typedef struct piece
-{
-    int id;
-} Piece;
+// estructura con texturas de las imágenes por pieza
+typedef struct mytextures myTexture;
 
+typedef struct stack Stack;
 
-typedef struct mytextures
-{
-    Texture2D texturepn;
-    Texture2D texturepb;
-    Texture2D texturean;
-    Texture2D textureab;
-    Texture2D texturecn;
-    Texture2D texturecb;
-    Texture2D texturetn;
-    Texture2D texturetb;
-    Texture2D texturedn;
-    Texture2D texturedb;
-    Texture2D texturern;
-    Texture2D texturerb;
-} myTexture;
+// realiza la estructura del tablero (cuadros blancos y negros)
+void drawBoard();
 
-void drawBoard(int board[8][8]);
-
+// datos iniciales a estrucura player
 Player* newPlayer();
 
-void makeMove(Game* g, Player* p, int board_pieces[8][8]);
-
+// permite seleccionar posiciones de movimiento y realizar movimiento
+void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s);
+// datos iniciales a estructura game
 Game* newGame();
 
+// carga texturas a partir de imágenes de las piezas
 myTexture* loadTextures();
 
-void drawPieces(int board[8][8], myTexture* t);
+// pone texturas de las piezas en su posición correspondiente según matriz de tablero
+void drawPieces(int board[8][8], myTexture* t, Game* g, Player* p);
 
+// revisa quien gana -1 negro, 1 blanco
 int checkWin(int board[8][8]);
 
+// muestra texto del jugador ganador
 void showWinner(int whoWon);
 
-char getCurrentPlayer(Game *g);
+// revisa si algún peon llegó a la última fila y lo corona a reina
+void coronacion(int board[8][8]);
 
-void switchPlayer(Game *g);
+// dibuja botones de la derecha
+void drawButtons();
+
+// revisar si se presiona el boton de reiniciar juego
+int startNewGame();
+
+void checkSaveLoad(Game* g, int board[8][8], Stack* s);
+
+// iluminar cuadro en el que está el mouse
+void iluminar(int board[8][8]);
+
+Stack* create(int board[8][8], Game* g);
 
 #endif
