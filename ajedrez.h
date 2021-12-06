@@ -59,4 +59,12 @@ void iluminar(int board[8][8]);
 
 Stack* create(int board[8][8], Game* g);
 
+int revisarUnJaqueChilo(int board[8][8]);
+
+void drawJaque();
+
+void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s);
+
+void freeVars(Game* g, Player* p, myTexture* t, Stack* s);
+
 #endif
