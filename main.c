@@ -35,6 +35,7 @@ int main()
     while (!WindowShouldClose())
     {
         BeginDrawing();
+
         if (whoWon == 0 && revisarUnJaqueChilo(board_pieces) == 0)
         {
             // nadie ha ganado y no hay jaque
@@ -69,24 +70,19 @@ int main()
 
         startNewGame();
 
-
         if (revisarUnJaqueChilo(board_pieces))
         {
             drawJaque();
             // mate?
+
             whoWon = checkWin(board_pieces);
             if (whoWon != 0)
             {
                 showWinner(whoWon);
             }
-            else
-            {
-                // solo mover el rey
-                makeMoveJaque(g, p, board_pieces, s);
-                // luego revisar que no se pueda poner en jaque a si mismo
-                //tapar
-            }
+            makeMoveJaque(g, p, board_pieces, s);
         }
+
         EndDrawing();
     }
     CloseWindow();
