@@ -1289,8 +1289,6 @@ void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s)
 
         if (revisarAutoJaque(board_pieces, p, g) == 1)
             goBack(g, board_pieces, s);
-
-
         g->band = 0;
     }
 
@@ -1312,11 +1310,16 @@ void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s)
             g->band = whereMove(p);
         else if (g->band == 2)
         {
-            if (revisarAutoJaque(board_pieces, p, g) == 0)
-                g->band = changePeaces(board_pieces, p, g, s);
-            else
-                g->band = 0;
+            // realizar movimiento
+            g->band = changePeaces(board_pieces, p, g, s);
+
+            if (revisarAutoJaque(board_pieces, p, g) == 1)
+                goBack(g, board_pieces, s);
+
+
+            g->band = 0;
         }
+
     }
     else
     {
