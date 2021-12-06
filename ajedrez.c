@@ -1251,19 +1251,18 @@ void freeVars(Game* g, Player* p, myTexture* t, Stack* s)
 }
 
 
-int revisarAutoJaque(int board[8][8], Player* p)
+int revisarAutoJaque(int board[8][8], Player* p, Game* g)
 {
-    int what = board[p->whatToMoveY][p->whatToMoveX];
-    if (what == -100)
+    if (g->turn == 1)
     {
-        if (revisarJaqueNegro(board, p->whereToMoveY, p->whereToMoveX) == 1)
+        if (revisarJaqueNegro(board, getBlackKingi(board), getBlackKingj(board)) == 1)
         {
             return 1;
         }
     }
-    if (what == 100)
+    if (g->turn == -1)
     {
-        if (revisarJaqueBlanco(board, p->whereToMoveY, p->whereToMoveX) == 1)
+        if (revisarJaqueBlanco(board, getWhiteKingi(board), getWhiteKingj(board)) == 1)
         {
             return 1;
         }
@@ -1286,11 +1285,13 @@ void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s)
     else if (g->band == 2)
     {
         // realizar movimiento
+        g->band = changePeaces(board_pieces, p, g, s);
 
-        if (revisarAutoJaque(board_pieces, p) == 0)
-            g->band = changePeaces(board_pieces, p, g, s);
-        else
-            g->band = 0;
+        if (revisarAutoJaque(board_pieces, p, g) == 1)
+            goBack(g, board_pieces, s);
+
+
+        g->band = 0;
     }
 
 }
@@ -1311,7 +1312,7 @@ void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s)
             g->band = whereMove(p);
         else if (g->band == 2)
         {
-            if (revisarAutoJaque(board_pieces, p) == 0)
+            if (revisarAutoJaque(board_pieces, p, g) == 0)
                 g->band = changePeaces(board_pieces, p, g, s);
             else
                 g->band = 0;
@@ -1321,5 +1322,39 @@ void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s)
     {
         g->band = 0;
     }
+}
 
+void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s)
+{
+
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            for (int k = 0; k < 8; k++)
+            {
+                for (int l = 0; l < 8; l++)
+                {
+                    if (g->turn == -1)
+                    {
+                        p->whatToMoveX = i;
+                        p->whatToMoveY = j;
+                        p->whereToMoveX = k;
+                        p->whereToMoveY = l;
+                        changePeaces(board, p, g, s);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                if (g->turn != -1)
+                    break;
+            }
+            if (g->turn != -1)
+                break;
+        }
+        if (g->turn != -1)
+            break;
+    }
 }

@@ -67,4 +67,6 @@ void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s);
 
 void freeVars(Game* g, Player* p, myTexture* t, Stack* s);
 
+void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s);
+
 #endif
