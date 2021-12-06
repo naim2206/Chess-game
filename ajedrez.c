@@ -1289,8 +1289,6 @@ void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s)
 
         if (revisarAutoJaque(board_pieces, p, g) == 1)
             goBack(g, board_pieces, s);
-
-
         g->band = 0;
     }
 
