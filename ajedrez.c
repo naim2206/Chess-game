@@ -3,6 +3,7 @@
 #include "raylib.h"
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 struct player
 {
@@ -905,6 +906,7 @@ void checkSaveLoad(Game* g, int board[8][8], Stack* s)
         if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > 7 * SCREAN_HEIGHT / 9 && y < 8 * SCREAN_HEIGHT / 9)
         {
             goBack(g, board, s);
+            goBack(g, board, s);
         }
     }
 }
@@ -1297,7 +1299,7 @@ void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s)
 
 void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s)
 {
-    if (GetMouseX() < BOARD_WIDTH)
+    /*if (GetMouseX() < BOARD_WIDTH)
     {
         if (g->band == 0)
             // selección de pieza a mover
@@ -1324,40 +1326,58 @@ void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s)
     else
     {
         g->band = 0;
-    }
+    }*/
+
+    makeMove(g, p, board_pieces, s);
+
+    //if (revisarUnJaqueChilo(board_pieces) == 1)
+    //    goBack(g, board_pieces, s);
+
 }
 
 void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s)
 {
-
-    for (int i = 0; i < 8; i++)
+    if (g->turn == -1)
     {
-        for (int j = 0; j < 8; j++)
+        for (int i = 0; i < 8; i++)
         {
-            for (int k = 0; k < 8; k++)
+            for (int j = 0; j < 8; j++)
             {
-                for (int l = 0; l < 8; l++)
+                for (int k = 0; k < 8; k++)
                 {
-                    if (g->turn == -1)
+                    for (int l = 0; l < 8; l++)
                     {
-                        p->whatToMoveX = i;
-                        p->whatToMoveY = j;
-                        p->whereToMoveX = k;
-                        p->whereToMoveY = l;
-                        changePeaces(board, p, g, s);
+                        if (board[j][i] < 0)
+                        {
+                            p->whatToMoveX = i;
+                            p->whatToMoveY = j;
+                            p->whereToMoveX = k;
+                            p->whereToMoveY = l;
+                            if (board[p->whereToMoveY][p->whereToMoveX] > 0)
+                            {
+                                changePeaces(board, p, g, s);
+                                g->band = 0;
+                            }
+                        }
+
                     }
-                    else
-                    {
-                        break;
-                    }
+
                 }
-                if (g->turn != -1)
-                    break;
+
             }
-            if (g->turn != -1)
-                break;
+
         }
-        if (g->turn != -1)
-            break;
     }
+
+    srand(time(NULL));
+    while (g->turn == -1)
+    {
+        p->whatToMoveX = rand() % 8;
+        p->whatToMoveY = rand() % 8;
+        p->whereToMoveX = rand() % 8;
+        p->whereToMoveY = rand() % 8;
+        changePeaces(board, p, g, s);
+        g->band = 0;
+    }
+
 }

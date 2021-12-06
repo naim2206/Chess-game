@@ -35,10 +35,13 @@ int main()
     while (!WindowShouldClose())
     {
         BeginDrawing();
-        inteliganciaArtificialChila(board_pieces, g, p, s);
         if (whoWon == 0 && revisarUnJaqueChilo(board_pieces) == 0)
+        {
             // nadie ha ganado y no hay jaque
             makeMove(g, p, board_pieces, s);
+            inteliganciaArtificialChila(board_pieces, g, p, s);
+        }
+
 
         if (startNewGame() == 1)
         {
