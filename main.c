@@ -60,9 +60,10 @@ int main()
             drawJaque();
 
             inteliganciaArtificialChila(board_pieces, g, p, s);
-            makeMoveJaque(g, p, board_pieces, s);
+            makeMove(g, p, board_pieces, s);
         }
         whoWon = checkWin(board_pieces);
+        // hay ganador
         if (whoWon != 0)
         {
             showWinner(whoWon);

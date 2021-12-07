@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 
+// datos del movimiento del jugador
 struct player
 {
     int whereToMoveX;
@@ -13,6 +14,7 @@ struct player
     int whatToMoveY;
 };
 
+// datos del juego actual
 struct game
 {
     // -1 negro, 1 blanco
@@ -22,7 +24,7 @@ struct game
     int primeraVezEnroque[2][3];
 };
 
-
+// texturas de las imágenes de las piezas
 struct mytextures
 {
     Texture2D texturepn;
@@ -39,12 +41,13 @@ struct mytextures
     Texture2D texturerb;
 };
 
+// stack para el undo
 struct stack
 {
     struct node* top;
 };
 
-
+// nodo del stack con información necesaria para el undo
 struct node
 {
     int board[8][8];
@@ -57,10 +60,11 @@ struct node
 };
 typedef struct node Node;
 
-
+// meter datos al stack (cada que se hace un mov.) 
 void push(Stack* stack, int board_p[8][8], Game* g)
 {
     Node* node = malloc(sizeof(Node));
+    // guarda el tablero
     for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 8; j++)
@@ -69,6 +73,7 @@ void push(Stack* stack, int board_p[8][8], Game* g)
         }
     }
 
+    // guarda datos del juego
     node->band = g->band;
     node->turn = g->turn;
     for (int i = 0; i < 2; i++)
@@ -84,6 +89,7 @@ void push(Stack* stack, int board_p[8][8], Game* g)
 
 }
 
+// nuevo stack (al inicio del juego)
 Stack* create(int board[8][8], Game* g)
 {
     Stack* stack = malloc(sizeof(Stack));
@@ -93,6 +99,7 @@ Stack* create(int board[8][8], Game* g)
 
 }
 
+// eliminar lo que está encima del stack (des hacer un mov.)
 void pop(Stack* stack)
 {
 
@@ -847,6 +854,7 @@ int startNewGame()
     return 0;
 }
 
+// guardar el juego actual en un archivo (tablero y struct game)
 void saveGame(Game* g, int board[8][8])
 {
     FILE* f = fopen("loadedGame.txt", "wb");
@@ -855,6 +863,7 @@ void saveGame(Game* g, int board[8][8])
     fclose(f);
 }
 
+// cargar el juego del archivo (tablero y struct game)
 void loadGame(Game* g, int board[8][8], Stack* s)
 {
     FILE* f = fopen("loadedGame.txt", "rb");
@@ -865,13 +874,14 @@ void loadGame(Game* g, int board[8][8], Stack* s)
 }
 
 
-
+// regresar 1 movimiento (lo que está abajo del top del stack)
 void goBack(Game* g, int board[8][8], Stack* s)
 {
     if (s->top->prior != NULL)
     {
         pop(s);
 
+        // recuperar información del nuevo top    
         if (s->top != NULL)
         {
             g->turn = s->top->turn;
@@ -890,6 +900,7 @@ void goBack(Game* g, int board[8][8], Stack* s)
     }
 }
 
+// revisar si se presionan los botones de guardar o cargar
 void checkSaveLoad(Game* g, int board[8][8], Stack* s)
 {
     int x = GetMouseX(), y = GetMouseY();
@@ -905,12 +916,14 @@ void checkSaveLoad(Game* g, int board[8][8], Stack* s)
         }
         if (x > BOARD_WIDTH + 10 && x < BOARD_WIDTH + 90 && y > 7 * SCREAN_HEIGHT / 9 && y < 8 * SCREAN_HEIGHT / 9)
         {
+            // regresar movmiento actual y el de la ia
             goBack(g, board, s);
             goBack(g, board, s);
         }
     }
 }
 
+// obtener posicion i de la matriz en la que esta el rey blanco
 int getWhiteKingi(int board[8][8])
 {
     for (int i = 0; i < 8; i++)
@@ -920,6 +933,7 @@ int getWhiteKingi(int board[8][8])
     return 0;
 }
 
+// obtener posicion j de la matriz en la que esta el rey blanco
 int getWhiteKingj(int board[8][8])
 {
     for (int i = 0; i < 8; i++)
@@ -929,6 +943,7 @@ int getWhiteKingj(int board[8][8])
     return 0;
 }
 
+// obtener posicion i de la matriz en la que esta el rey negro
 int getBlackKingi(int board[8][8])
 {
     for (int i = 0; i < 8; i++)
@@ -938,6 +953,7 @@ int getBlackKingi(int board[8][8])
     return 0;
 }
 
+// obtener posicion j de la matriz en la que esta el rey negro
 int getBlackKingj(int board[8][8])
 {
     for (int i = 0; i < 8; i++)
@@ -948,12 +964,12 @@ int getBlackKingj(int board[8][8])
 }
 
 
-
+// revisar si la posición dada está en jaque por los blancos
 int revisarJaqueNegro(int board[8][8], int in, int jn)
 {
     int tempi, tempj;
 
-    // arriba
+    // arriba reina y torre
     tempi = in + 1;
     while (board[tempi][jn] >= 0 && tempi < 8)
     {
@@ -963,7 +979,7 @@ int revisarJaqueNegro(int board[8][8], int in, int jn)
             break;
         tempi++;
     }
-    // abajo
+    // abajo  reina y torre
     tempi = in - 1;
     while (board[tempi][jn] >= 0 && tempi >= 0)
     {
@@ -973,7 +989,7 @@ int revisarJaqueNegro(int board[8][8], int in, int jn)
             break;
         tempi--;
     }
-    // izquierda
+    // izquierda  reina y torre
     tempj = jn - 1;
     while (board[in][tempj] >= 0 && tempj >= 0)
     {
@@ -983,7 +999,7 @@ int revisarJaqueNegro(int board[8][8], int in, int jn)
             break;
         tempj--;
     }
-    // derecha
+    // derecha reina y torre
     tempj = jn + 1;
     while (board[in][tempj] >= 0 && tempj < 8)
     {
@@ -993,7 +1009,7 @@ int revisarJaqueNegro(int board[8][8], int in, int jn)
             break;
         tempj++;
     }
-    // arriba/derecha
+    // arriba/derecha reina y alfil
     tempj = jn + 1;
     tempi = in + 1;
     while (board[tempi][tempj] >= 0 && tempi < 8 && tempj < 8)
@@ -1005,7 +1021,7 @@ int revisarJaqueNegro(int board[8][8], int in, int jn)
         tempj++;
         tempi++;
     }
-    // arrina/izquierda
+    // arriba/izquierda  reina y alfil
     tempj = jn - 1;
     tempi = in + 1;
     while (board[tempi][tempj] >= 0 && tempi < 8 && tempj >= 0)
@@ -1017,7 +1033,7 @@ int revisarJaqueNegro(int board[8][8], int in, int jn)
         tempj--;
         tempi++;
     }
-    // abajo/derecha
+    // abajo/derecha reina y alfil
     tempj = jn + 1;
     tempi = in - 1;
     while (board[tempi][tempj] >= 0 && tempj < 8 && tempi >= 0)
@@ -1029,7 +1045,7 @@ int revisarJaqueNegro(int board[8][8], int in, int jn)
         tempj++;
         tempi--;
     }
-    // abajo/izquierda
+    // abajo/izquierda reina y alfil
     tempj = jn - 1;
     tempi = in - 1;
     while (board[tempi][tempj] >= 0 && tempj >= 0 && tempj >= 0)
@@ -1057,11 +1073,11 @@ int revisarJaqueNegro(int board[8][8], int in, int jn)
     return 0;
 }
 
-
+// revisar si la posición dada está en jaque por los blancos
 int revisarJaqueBlanco(int board[8][8], int ib, int jb)
 {
     int tempi, tempj;
-    // arriba
+    // arriba reina y torre
     tempi = ib + 1;
     while (board[tempi][jb] <= 0 && tempi < 8)
     {
@@ -1071,7 +1087,7 @@ int revisarJaqueBlanco(int board[8][8], int ib, int jb)
             break;
         tempi++;
     }
-    // abajo
+    // abajo  reina y torre
     tempi = ib - 1;
     while (board[tempi][jb] <= 0 && tempi >= 0)
     {
@@ -1081,7 +1097,7 @@ int revisarJaqueBlanco(int board[8][8], int ib, int jb)
             break;
         tempi--;
     }
-    // izquierda
+    // izquierda reina y torre
     tempj = jb - 1;
     while (board[ib][tempj] <= 0 && tempj >= 0)
     {
@@ -1091,7 +1107,7 @@ int revisarJaqueBlanco(int board[8][8], int ib, int jb)
             break;
         tempj--;
     }
-    // derecha
+    // derecha reina y torre
     tempj = jb + 1;
     while (board[ib][tempj] <= 0 && tempj < 8)
     {
@@ -1101,7 +1117,7 @@ int revisarJaqueBlanco(int board[8][8], int ib, int jb)
             break;
         tempj++;
     }
-    // arriba/derecha
+    // arriba/derecha reina y alfil
     tempj = jb + 1;
     tempi = ib + 1;
     while (board[tempi][tempj] <= 0 && tempi < 8 && tempj < 8)
@@ -1113,7 +1129,7 @@ int revisarJaqueBlanco(int board[8][8], int ib, int jb)
         tempj++;
         tempi++;
     }
-    // arriba/izquierda
+    // arriba/izquierda  reina y alfil
     tempj = jb - 1;
     tempi = ib + 1;
     while (board[tempi][tempj] <= 0 && tempi < 8 && tempj >= 0)
@@ -1125,7 +1141,7 @@ int revisarJaqueBlanco(int board[8][8], int ib, int jb)
         tempj--;
         tempi++;
     }
-    // abajo/derecha
+    // abajo/derecha reina y alfil
     tempj = jb + 1;
     tempi = ib - 1;
     while (board[tempi][tempj] <= 0 && tempj < 8 && tempi >= 0)
@@ -1137,7 +1153,7 @@ int revisarJaqueBlanco(int board[8][8], int ib, int jb)
         tempj++;
         tempi--;
     }
-    // abajo/izquierda
+    // abajo/izquierda reina y alfil
     tempj = jb - 1;
     tempi = ib - 1;
     while (board[tempi][tempj] <= 0 && tempj >= 0 && tempj >= 0)
@@ -1164,6 +1180,7 @@ int revisarJaqueBlanco(int board[8][8], int ib, int jb)
     return 0;
 }
 
+// revisar si hay jaque en alguno de los reyes
 int revisarUnJaqueChilo(int board[8][8])
 {
     if (revisarJaqueBlanco(board, getWhiteKingi(board), getWhiteKingj(board)) == 1)
@@ -1173,18 +1190,20 @@ int revisarUnJaqueChilo(int board[8][8])
     return 0;
 }
 
-
+// muestra el letrero "Jaque" al centro de la pantalla
 void drawJaque()
 {
     DrawText("Jaque", 100, 175, 50, BLACK);
 }
 
+// revisa que el rey no esté rodeado de blancos y que no importa a donde se mueva estará en jaque
 int revisarJaqueMateBlanco(int board[8][8])
 {
     int ib = getWhiteKingi(board);
     int jb = getWhiteKingj(board);
     int bandera = 0;
 
+    // no esta rodeado de blancos
     if (ib + 1 < 8 && jb + 1 < 8)
         if (board[ib + 1][jb + 1] < 0)
             bandera = 1;
@@ -1214,6 +1233,7 @@ int revisarJaqueMateBlanco(int board[8][8])
         return 0;
 
 
+    // puede ir a algun lugar vació o negro y que no esté en jaque
     if (revisarJaqueBlanco(board, ib + 1, jb + 1) == 0 && board[ib + 1][jb + 1] <= 0 && jb + 1 < 8 && ib + 1 < 8)
         return 0;
     if (revisarJaqueBlanco(board, ib - 1, jb + 1) == 0 && board[ib - 1][jb + 1] < 0 && jb + 1 < 8 && ib - 1 >= 0)
@@ -1234,12 +1254,14 @@ int revisarJaqueMateBlanco(int board[8][8])
     return 1;
 }
 
+// revisa que el rey no esté rodeado de negros y que no importa a donde se mueva estará en jaque
 int revisarJaqueMateNegro(int board[8][8])
 {
     int jn = getBlackKingj(board);
     int in = getBlackKingi(board);
     int bandera = 0;
 
+    // no esta rodeado de negros
     if (in + 1 < 8 && jn + 1 < 8)
         if (board[in + 1][jn + 1] > 0)
             bandera = 1;
@@ -1268,6 +1290,7 @@ int revisarJaqueMateNegro(int board[8][8])
     if (bandera == 0)
         return 0;
 
+    // puede ir a algun lugar vació o negro y que no esté en jaque
     if (revisarJaqueNegro(board, in + 1, jn + 1) == 0 && board[in + 1][jn + 1] >= 0 && in + 1 < 8 && jn + 1 < 8)
         return 0;
     if (revisarJaqueNegro(board, in - 1, jn + 1) == 0 && board[in - 1][jn + 1] >= 0 && jn + 1 < 8 && in - 1 >= 0)
@@ -1295,10 +1318,13 @@ int checkWin(int board[8][8])
     // cambiar a que sea cuando hay jaque mate
     int blackWin = -1;
     int whiteWin = 1;
+    // si hay jaque mate en algún rey gana el otro
     if (revisarJaqueMateBlanco(board) == 1)
         return blackWin;
     if (revisarJaqueMateNegro(board) == 1)
         return whiteWin;
+
+    // también si por alguna razon se murió un rey
     for (int i = 0; i < 8; i++)
         for (int j = 0; j < 8; j++)
         {
@@ -1315,7 +1341,7 @@ int checkWin(int board[8][8])
     return 0;
 }
 
-
+// liberar memoria de las variables del heap
 void freeVars(Game* g, Player* p, myTexture* t, Stack* s)
 {
     free(p);
@@ -1324,9 +1350,10 @@ void freeVars(Game* g, Player* p, myTexture* t, Stack* s)
     free(s);
 }
 
-
+// revisa que el movimiento que se acaba de hacer no te deja en jaque
 int revisarAutoJaque(int board[8][8], Player* p, Game* g)
 {
+    // negro acaba de mover y no hay jaque en negro
     if (g->turn == 1)
     {
         if (revisarJaqueNegro(board, getBlackKingi(board), getBlackKingj(board)) == 1)
@@ -1334,6 +1361,8 @@ int revisarAutoJaque(int board[8][8], Player* p, Game* g)
             return 1;
         }
     }
+
+    // blanco acaba de mover y no hay jaque en blanco
     if (g->turn == -1)
     {
         if (revisarJaqueBlanco(board, getWhiteKingi(board), getWhiteKingj(board)) == 1)
@@ -1361,6 +1390,7 @@ void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s)
         // realizar movimiento
         g->band = changePeaces(board_pieces, p, g, s);
 
+        // si el mov. lo deja en jaque ¡No lo haga compa!
         if (revisarAutoJaque(board_pieces, p, g) == 1)
             goBack(g, board_pieces, s);
         g->band = 0;
@@ -1368,14 +1398,7 @@ void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s)
 
 }
 
-
-void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s)
-{
-
-    makeMove(g, p, board_pieces, s);
-
-}
-
+// el mismo change peaces pero regresa algo útil para la ia
 int changePeacesia(int board[8][8], Player* p, Game* g, Stack* s)
 {
     // que hay en donde se quiere mover
@@ -1473,26 +1496,31 @@ int changePeacesia(int board[8][8], Player* p, Game* g, Stack* s)
                     // guardar en stack
                     push(s, board, g);
                 }
+
             }
             return 0;
 
         }
-        // regresa a selección de pieza a move// regresa a selección de pieza a mover
 
         return 1;
     }
     return 1;
 }
 
+// realizar movimiento automáticamente del negro
+// esta inteligencia es muy chila, tengan cuidado
 void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s)
 {
+    // hacer semilla con el tiempo
     srand(time(NULL));
 
-
+    // si es su turno
     if (g->turn == -1)
     {
+        // si esta en jaque
         if (revisarJaqueNegro(board, getBlackKingi(board), getBlackKingj(board)) == 1)
         {
+            // revisa todas los posibles movimientos
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
@@ -1505,11 +1533,15 @@ void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s)
                             p->whatToMoveY = j;
                             p->whereToMoveX = k;
                             p->whereToMoveY = l;
+                            // si se mueve una negra
                             if (board[p->whatToMoveY][p->whatToMoveX] < 0)
                             {
+                                // si se realiza el movimiento correctamente
                                 if (changePeacesia(board, p, g, s) == 0)
                                 {
+                                    // volver a revisar jaque
                                     if (revisarJaqueNegro(board, getBlackKingi(board), getBlackKingj(board)) == 1)
+                                        // sigues en jaque bro
                                         goBack(g, board, s);
                                 }
                                 g->band = 0;
@@ -1522,6 +1554,7 @@ void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s)
     }
 
 
+    // es el turno de la ia
     if (g->turn == -1)
     {
         for (int i = 0; i < 8; i++)
@@ -1532,16 +1565,20 @@ void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s)
                 {
                     for (int l = 0; l < 8; l++)
                     {
+                        // revisa todas las posibilidades
                         if (board[j][i] < 0)
                         {
                             p->whatToMoveX = i;
                             p->whatToMoveY = j;
                             p->whereToMoveX = k;
                             p->whereToMoveY = l;
+                            // si me puede matar
                             if (board[p->whereToMoveY][p->whereToMoveX] > 0)
                             {
+                                // lo intenta hacer
                                 if (changePeacesia(board, p, g, s) == 0)
                                     if (revisarAutoJaque(board, p, g) == 1)
+                                        // no lo hace si lo deja en jaque
                                         goBack(g, board, s);
                                 g->band = 0;
                             }
@@ -1557,22 +1594,27 @@ void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s)
 
     }
 
-
+    // si no está en jaque ni puede matarme
+    // mientras sea su turno
     while (g->turn == -1)
     {
+        // agarra un movimiento random
         p->whatToMoveX = rand() % 8;
         p->whatToMoveY = rand() % 8;
         p->whereToMoveX = rand() % 8;
         p->whereToMoveY = rand() % 8;
+        // intenta hacer el movimiento random
         if (changePeacesia(board, p, g, s) == 0)
             if (revisarAutoJaque(board, p, g) == 1)
+                // que no quede en jaque
                 goBack(g, board, s);
-        //changePeacesia(board, p, g, s);
         g->band = 0;
     }
-    //sleep(1);
 
 }
+
+
+
 /*
 void iablanca(int board[8][8], Game* g, Player* p, Stack* s)
 {
@@ -1607,7 +1649,9 @@ void iablanca(int board[8][8], Game* g, Player* p, Stack* s)
             }
         }
     }
-    /*
+
+
+
     if (g->turn == 1)
     {
         for (int i = 0; i < 8; i++)
