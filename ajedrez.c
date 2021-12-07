@@ -1183,6 +1183,36 @@ int revisarJaqueMateBlanco(int board[8][8])
 {
     int ib = getWhiteKingi(board);
     int jb = getWhiteKingj(board);
+    int bandera = 0;
+
+    if (ib + 1 < 8 && jb + 1 < 8)
+        if (board[ib + 1][jb + 1] < 0)
+            bandera = 1;
+    if (jb + 1 < 8 && ib - 1 >= 0)
+        if (board[ib - 1][jb + 1] < 0)
+            bandera = 1;
+    if (ib + 1 < 8 && jb - 1 >= 0)
+        if (board[ib + 1][jb - 1] < 0)
+            bandera = 1;
+    if (ib - 1 >= 0 && jb - 1 >= 0)
+        if (board[ib - 1][jb - 1] < 0)
+            bandera = 1;
+    if (jb + 1 < 8)
+        if (board[ib][jb + 1] < 0)
+            bandera = 1;
+    if (ib + 1 < 8)
+        if (board[ib + 1][jb] < 0)
+            bandera = 1;
+    if (jb - 1 >= 0)
+        if (board[ib][jb - 1] < 0)
+            bandera = 1;
+    if (ib - 1 >= 0)
+        if (board[ib - 1][jb] < 0)
+            bandera = 1;
+
+    if (bandera == 0)
+        return 0;
+
 
     if (revisarJaqueBlanco(board, ib + 1, jb + 1) == 0 && board[ib + 1][jb + 1] <= 0 && jb + 1 < 8 && ib + 1 < 8)
         return 0;
@@ -1208,6 +1238,35 @@ int revisarJaqueMateNegro(int board[8][8])
 {
     int jn = getBlackKingj(board);
     int in = getBlackKingi(board);
+    int bandera = 0;
+
+    if (in + 1 < 8 && jn + 1 < 8)
+        if (board[in + 1][jn + 1] > 0)
+            bandera = 1;
+    if (jn + 1 < 8 && in - 1 >= 0)
+        if (board[in - 1][jn + 1] > 0)
+            bandera = 1;
+    if (in + 1 < 8 && jn - 1 >= 0)
+        if (board[in + 1][jn - 1] > 0)
+            bandera = 1;
+    if (in - 1 >= 0 && jn - 1 >= 0)
+        if (board[in - 1][jn - 1] > 0)
+            bandera = 1;
+    if (jn + 1 < 8)
+        if (board[in][jn + 1] > 0)
+            bandera = 1;
+    if (in + 1 < 8)
+        if (board[in + 1][jn] > 0)
+            bandera = 1;
+    if (jn - 1 >= 0)
+        if (board[in][jn - 1] > 0)
+            bandera = 1;
+    if (in - 1 >= 0)
+        if (board[in - 1][jn] > 0)
+            bandera = 1;
+
+    if (bandera == 0)
+        return 0;
 
     if (revisarJaqueNegro(board, in + 1, jn + 1) == 0 && board[in + 1][jn + 1] >= 0 && in + 1 < 8 && jn + 1 < 8)
         return 0;
@@ -1240,6 +1299,19 @@ int checkWin(int board[8][8])
         return blackWin;
     if (revisarJaqueMateNegro(board) == 1)
         return whiteWin;
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+        {
+            if (board[i][j] == -100)
+                whiteWin = 0;
+            if (board[i][j] == 100)
+                blackWin = 0;
+        }
+    if (whiteWin != 0)
+        return whiteWin;
+    if (blackWin != 0)
+        return blackWin;
+
     return 0;
 }
 
@@ -1299,44 +1371,157 @@ void makeMove(Game* g, Player* p, int board_pieces[8][8], Stack* s)
 
 void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s)
 {
-    /*if (GetMouseX() < BOARD_WIDTH)
-    {
-        if (g->band == 0)
-            // selección de pieza a mover
-            g->band = whatMove(p, board_pieces);
-    }
-    if (board_pieces[p->whatToMoveY][p->whatToMoveX] == 100 || board_pieces[p->whatToMoveY][p->whatToMoveX] == -100)
-    {
-        if (g->band == 1)
-            // selección de lugar a moverse
-            g->band = whereMove(p);
-        else if (g->band == 2)
-        {
-            // realizar movimiento
-            g->band = changePeaces(board_pieces, p, g, s);
-
-            if (revisarAutoJaque(board_pieces, p, g) == 1)
-                goBack(g, board_pieces, s);
-
-
-            g->band = 0;
-        }
-
-    }
-    else
-    {
-        g->band = 0;
-    }*/
 
     makeMove(g, p, board_pieces, s);
 
-    //if (revisarUnJaqueChilo(board_pieces) == 1)
-    //    goBack(g, board_pieces, s);
+}
 
+int changePeacesia(int board[8][8], Player* p, Game* g, Stack* s)
+{
+    // que hay en donde se quiere mover
+    int where = board[p->whereToMoveY][p->whereToMoveX];
+    // que se va a mover
+    int what = board[p->whatToMoveY][p->whatToMoveX];
+
+    if ((what < 0 && g->turn == -1) || (what > 0 && g->turn == 1))
+    {
+
+        // el movimiento es valido
+        if (possibleMovePerPiece(board, p, what, g) == 1)
+        {
+            if (where == 0)
+            {
+                //va a un lugar vacío, se intercambia
+                int temp;
+                temp = what;
+                board[p->whatToMoveY][p->whatToMoveX] = where;
+                board[p->whereToMoveY][p->whereToMoveX] = temp;
+                g->turn *= -1;
+                // guardar en stack
+                push(s, board, g);
+                // regresa a selección de pieza a mover
+                return 0;
+            }
+
+            // para no vas contra tu propio equipo
+            if ((where > 0 && what < 0) || (where < 0 && what > 0))
+            {
+                // matar enemigo
+                board[p->whereToMoveY][p->whereToMoveX] = what;
+                board[p->whatToMoveY][p->whatToMoveX] = 0;
+                // regresa a selección de pieza a mover
+                g->turn *= -1;
+                // guardar en stack
+                push(s, board, g);
+                return 0;
+            }
+
+            // no se realiza el movimiento
+            return 1;
+        }
+        if (possibleMovePerPiece(board, p, what, g) == 2)
+        {
+            // enroque
+            // negro
+            if (what < 0)
+            {
+                // derecha
+                if (p->whereToMoveX == 6)
+                {
+                    board[0][4] = 0;
+                    board[0][7] = 0;
+                    board[0][5] = -5;
+                    board[0][6] = -100;
+                    g->turn *= -1;
+                    // guardar en stack
+                    push(s, board, g);
+                }
+                // izquierda
+                if (p->whereToMoveX == 2)
+                {
+                    board[0][0] = 0;
+                    board[0][4] = 0;
+                    board[0][3] = -5;
+                    board[0][2] = -100;
+                    g->turn *= -1;
+                    // guardar en stack
+                    push(s, board, g);
+                }
+            }
+            // blanco
+            if (what > 0)
+            {
+                // derecha
+                if (p->whereToMoveX == 6)
+                {
+                    board[7][4] = 0;
+                    board[7][7] = 0;
+                    board[7][5] = 5;
+                    board[7][6] = 100;
+                    g->turn *= -1;
+                    // guardar en stack
+                    push(s, board, g);
+                }
+                // izquierda
+                if (p->whereToMoveX == 2)
+                {
+                    board[7][0] = 0;
+                    board[7][4] = 0;
+                    board[7][3] = 5;
+                    board[7][2] = 100;
+                    g->turn *= -1;
+                    // guardar en stack
+                    push(s, board, g);
+                }
+            }
+            return 0;
+
+        }
+        // regresa a selección de pieza a move// regresa a selección de pieza a mover
+
+        return 1;
+    }
+    return 1;
 }
 
 void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s)
 {
+    srand(time(NULL));
+
+
+    if (g->turn == -1)
+    {
+        if (revisarJaqueNegro(board, getBlackKingi(board), getBlackKingj(board)) == 1)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    for (int k = 0; k < 8; k++)
+                    {
+                        for (int l = 0; l < 8; l++)
+                        {
+                            p->whatToMoveX = i;
+                            p->whatToMoveY = j;
+                            p->whereToMoveX = k;
+                            p->whereToMoveY = l;
+                            if (board[p->whatToMoveY][p->whatToMoveX] < 0)
+                            {
+                                if (changePeacesia(board, p, g, s) == 0)
+                                {
+                                    if (revisarJaqueNegro(board, getBlackKingi(board), getBlackKingj(board)) == 1)
+                                        goBack(g, board, s);
+                                }
+                                g->band = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     if (g->turn == -1)
     {
         for (int i = 0; i < 8; i++)
@@ -1355,6 +1540,92 @@ void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s)
                             p->whereToMoveY = l;
                             if (board[p->whereToMoveY][p->whereToMoveX] > 0)
                             {
+                                if (changePeacesia(board, p, g, s) == 0)
+                                    if (revisarAutoJaque(board, p, g) == 1)
+                                        goBack(g, board, s);
+                                g->band = 0;
+                            }
+
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+    while (g->turn == -1)
+    {
+        p->whatToMoveX = rand() % 8;
+        p->whatToMoveY = rand() % 8;
+        p->whereToMoveX = rand() % 8;
+        p->whereToMoveY = rand() % 8;
+        if (changePeacesia(board, p, g, s) == 0)
+            if (revisarAutoJaque(board, p, g) == 1)
+                goBack(g, board, s);
+        //changePeacesia(board, p, g, s);
+        g->band = 0;
+    }
+    //sleep(1);
+
+}
+/*
+void iablanca(int board[8][8], Game* g, Player* p, Stack* s)
+{
+    if (g->turn == 1)
+    {
+        if (revisarJaqueBlanco(board, getWhiteKingi(board), getWhiteKingj(board)) == 1)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    for (int k = 0; k < 8; k++)
+                    {
+                        for (int l = 0; l < 8; l++)
+                        {
+                            p->whatToMoveX = i;
+                            p->whatToMoveY = j;
+                            p->whereToMoveX = k;
+                            p->whereToMoveY = l;
+                            if (board[p->whatToMoveY][p->whatToMoveX] > 0)
+                            {
+                                if (changePeacesia(board, p, g, s) == 0)
+                                {
+                                    if (revisarJaqueBlanco(board, getWhiteKingi(board), getWhiteKingj(board)) == 1)
+                                        goBack(g, board, s);
+                                }
+                                g->band = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /*
+    if (g->turn == 1)
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                for (int k = 0; k < 8; k++)
+                {
+                    for (int l = 0; l < 8; l++)
+                    {
+                        if (board[j][i] > 0)
+                        {
+                            p->whatToMoveX = i;
+                            p->whatToMoveY = j;
+                            p->whereToMoveX = k;
+                            p->whereToMoveY = l;
+                            if (board[p->whereToMoveY][p->whereToMoveX] < 0)
+                            {
                                 changePeaces(board, p, g, s);
                                 //if (revisarAutoJaque(board, p, g) == 1)
                                 //    goBack(g, board, s);
@@ -1371,17 +1642,18 @@ void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s)
         }
     }
 
-    srand(time(NULL));
-    while (g->turn == -1)
-    {
-        p->whatToMoveX = rand() % 8;
-        p->whatToMoveY = rand() % 8;
-        p->whereToMoveX = rand() % 8;
-        p->whereToMoveY = rand() % 8;
-        changePeaces(board, p, g, s);
+while (g->turn == 1)
+{
+    p->whatToMoveX = rand() % 8;
+    p->whatToMoveY = rand() % 8;
+    p->whereToMoveX = rand() % 8;
+    p->whereToMoveY = rand() % 8;
+    if (changePeacesia(board, p, g, s) == 0)
         if (revisarAutoJaque(board, p, g) == 1)
             goBack(g, board, s);
-        g->band = 0;
-    }
+    g->band = 0;
+}
 
 }
+
+*/
