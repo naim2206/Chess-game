@@ -69,4 +69,8 @@ void freeVars(Game* g, Player* p, myTexture* t, Stack* s);
 
 void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s);
 
+void iablanca(int board[8][8], Game* g, Player* p, Stack* s);
+
+
+
 #endif

@@ -2,11 +2,6 @@
 #include "ajedrez.h"
 #include <stdlib.h>
 
-/*
-1, 1, 1 - blanco
-1, 1, 1 - negro
-*/
-
 int main()
 {
     // peon 1, alfil 2, caballo 3, torre 5, Dama 9, rey 100, nada 0, 
@@ -43,7 +38,6 @@ int main()
             inteliganciaArtificialChila(board_pieces, g, p, s);
         }
 
-
         if (startNewGame() == 1)
         {
             //reiniciar juego
@@ -59,30 +53,20 @@ int main()
         drawButtons();
         drawPieces(board_pieces, t, g, p);
         coronacion(board_pieces);
-
-
-        // pa debuggear
-        //char pr[10];
-        //itoa(whoWon, pr, 10);
-        //if ((IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)))
-        //    DrawText(pr, 10, 10, 20, BLUE);
-        // hasta aqui
-
         startNewGame();
 
         if (revisarUnJaqueChilo(board_pieces))
         {
             drawJaque();
-            // mate?
 
-            whoWon = checkWin(board_pieces);
-            if (whoWon != 0)
-            {
-                showWinner(whoWon);
-            }
+            inteliganciaArtificialChila(board_pieces, g, p, s);
             makeMoveJaque(g, p, board_pieces, s);
         }
-
+        whoWon = checkWin(board_pieces);
+        if (whoWon != 0)
+        {
+            showWinner(whoWon);
+        }
         EndDrawing();
     }
     CloseWindow();
