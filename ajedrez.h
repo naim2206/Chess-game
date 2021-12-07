@@ -57,20 +57,21 @@ void checkSaveLoad(Game* g, int board[8][8], Stack* s);
 // iluminar cuadro en el que está el mouse
 void iluminar(int board[8][8]);
 
+// inicializa stack
 Stack* create(int board[8][8], Game* g);
 
+// revisar si hay jaque en alguno de los reyes
 int revisarUnJaqueChilo(int board[8][8]);
 
+// muestra el letrero "Jaque" al centro de la pantalla
 void drawJaque();
 
-void makeMoveJaque(Game* g, Player* p, int board_pieces[8][8], Stack* s);
-
+// liberar memoria de las variables del heap
 void freeVars(Game* g, Player* p, myTexture* t, Stack* s);
 
+// realizar movimiento automáticamente del negro
 void inteliganciaArtificialChila(int board[8][8], Game* g, Player* p, Stack* s);
 
-void iablanca(int board[8][8], Game* g, Player* p, Stack* s);
-
-
+//void iablanca(int board[8][8], Game* g, Player* p, Stack* s);
 
 #endif
